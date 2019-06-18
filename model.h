@@ -31,7 +31,7 @@ struct MODEL
 
 
 
-class CModel : public CGameObject
+class CModel
 {
 private:
 
@@ -53,7 +53,7 @@ public:
 	void Uninit();
 	void Update();
 	void Draw();
-
+	void Draw(XMFLOAT3 m_Position);
 	void Load( const char *FileName );
 	void Unload();
 

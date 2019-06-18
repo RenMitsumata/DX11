@@ -23,8 +23,9 @@ public:
 		
 		AddGameObject<CCamera>();
 		AddGameObject<CField>();
-		AddGameObject<CModel>();
-		AddGameObject<CPolygon>();		
+		AddGameObject<CPlayer>();
+		AddGameObject<CPolygon>();
+		
 	}
 	virtual void Uninit(void) {
 		for (CGameObject* object:_Objectlist) {

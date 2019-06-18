@@ -1,4 +1,3 @@
-#include <d3d11.h>
 #include "texture.h"
 #include "GameObject.h"
 #include "Field.h"
@@ -8,8 +7,8 @@ static XMMATRIX offsetPos;
 static XMFLOAT3** vertexPos;
 static ID3D11Buffer* index;
 static int g_Num;
-#define SQUARE_NUMBER (20)
-#define SQUARE_SIZE (5)
+#define SQUARE_NUMBER (30)
+#define SQUARE_SIZE (3)
 
 CField::CField()
 {
@@ -56,10 +55,12 @@ void CField::Init()
 	ZeroMemory(&sd, sizeof(sd));
 	sd.pSysMem = vertex;
 	CRenderer::GetDevice()->CreateBuffer(&bd, &sd, &m_VertexBuffer);
-	
-
-
-
+	/*
+	D3D11_MAPPED_SUBRESOURCE msr;
+	CRenderer::GetDeviceContext()->Map(m_VertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
+	memcpy(msr.pData, vertex, (sizeof(VERTEX_3D) * vertexNum));
+	CRenderer::GetDeviceContext()->Unmap(m_VertexBuffer, 0);
+	*/
 	//　インデックスバッファ
 	WORD index[vertexNum];
 	for (int i = 0; i < vertexNum; i++) {
@@ -69,12 +70,18 @@ void CField::Init()
 	ZeroMemory(&bd, sizeof(bd_vb));
 	bd_vb.Usage = D3D11_USAGE_DEFAULT;
 	bd_vb.ByteWidth = sizeof(WORD) * vertexNum;
-	bd_vb.BindFlags = D3D11_BIND_INDEX_BUFFER;	//　頂点バッファ
+	bd_vb.BindFlags = D3D11_BIND_INDEX_BUFFER;	//　インデックスバッファ
 	bd_vb.CPUAccessFlags = 0;
 	D3D11_SUBRESOURCE_DATA sd_vb;
 	ZeroMemory(&sd, sizeof(sd_vb));
 	sd.pSysMem = vertex;
 	CRenderer::GetDevice()->CreateBuffer(&bd, &sd, &m_IndexBuffer);
+	
+	
+
+
+
+
 
 	m_Texture = new CTexture;
 	m_Texture->Load("asset/field004.tga");
@@ -110,7 +117,6 @@ void CField::Draw()
 
 	UINT stride = sizeof(VERTEX_3D);
 	UINT offset = 0;
-
 
 
 	CRenderer::GetDeviceContext()->IASetVertexBuffers(0, 1, &m_VertexBuffer, &stride, &offset);

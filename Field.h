@@ -1,5 +1,4 @@
 #pragma once
-#include "main.h"
 class CField : public CGameObject
 {
 private:
