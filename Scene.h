@@ -1,46 +1,62 @@
 #pragma once
 
 #include <list>
+#include "GameObject.h"
+#include "CPlayer.h"
 
+#include "camera.h"
+#include "Field.h"
+#include "polygon.h"
+#include "CBullet.h"
 
 class CScene
 {
 protected:
-	std::list<CGameObject*> _Objectlist;
-
+	std::list<CGameObject*> _Objectlist[5];
+public:
 	template<typename T>
-	T* AddGameObject() {
+	T* AddGameObject(int layer) {
 		T* object = new T();
 		object->Init();
-		_Objectlist.push_back(object);
+		_Objectlist[layer].push_back(object);
 		return object;
 	}
-public:
+
 	CScene() {}
 	virtual ~CScene() {}
 
 	virtual void Init(void) {
 		
-		AddGameObject<CCamera>();
-		AddGameObject<CField>();
-		AddGameObject<CModel>();
-		AddGameObject<CPolygon>();		
+		AddGameObject<CCamera>(0);
+		AddGameObject<CField>(1);
+		AddGameObject<CPlayer>(2);
+		AddGameObject<CPolygon>(4);
+		
 	}
 	virtual void Uninit(void) {
-		for (CGameObject* object:_Objectlist) {
-			object->Uninit();
-			delete object;
+		
+		for (int i = 0; i < 5; i++) {
+			for (CGameObject* object : _Objectlist[i]) {
+				object->Uninit();
+				delete object;
+			}
+			_Objectlist[i].clear();
+
 		}
-		_Objectlist.clear();
+		
 	}
 	virtual void Update(void) {
-		for (CGameObject* object : _Objectlist) {
-			object->Update();
+		for (int i = 0; i < 5; i++) {
+			for (CGameObject* object : _Objectlist[i]) {
+				object->Update();
+			}
 		}
 	}
 	virtual void Draw(void) {
-		for (CGameObject* object : _Objectlist) {
-			object->Draw();
+		for (int i = 0; i < 5; i++) {
+			for (CGameObject* object : _Objectlist[i]) {
+				object->Draw();
+			}
 		}
 	}
 
@@ -60,3 +76,11 @@ public:
 
 */
 
+/*
+	ÉåÉCÉÑÅ[
+	ÉJÉÅÉâÅFÇO
+	îwåiÅFÇP
+	ÇRDÅFÇQ
+	ÉGÉtÉFÉNÉgÅFÇR
+	ÇQDÅFÇS
+*/

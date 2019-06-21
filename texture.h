@@ -1,11 +1,5 @@
 #pragma once
 
-#include "main.h"
-#include "renderer.h"
-
-
-
-
 class CTexture
 {
 

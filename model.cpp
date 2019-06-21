@@ -1,12 +1,10 @@
 
-
 #include "main.h"
 #include "renderer.h"
-#include "GameObject.h"
-#include "model.h"
-#include "texture.h"
-#include "input.h"
 
+#include "texture.h"
+
+#include "model.h"
 
 
 void CModel::Init()
@@ -20,6 +18,15 @@ void CModel::Init()
 		
 }
 
+void CModel::Init(const char* filename) {
+	m_Position = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	m_Rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+
+
+	Load(filename);
+}
+
 
 void CModel::Uninit()
 {
@@ -31,31 +38,28 @@ void CModel::Uninit()
 
 void CModel::Update()
 {
-	if (CInput::GetKeyPress('W')) {
-		m_Position.z += 0.5f;
-	}
-	if (CInput::GetKeyPress('A')) {
-		m_Position.x += -0.5f;
-	}
-	if (CInput::GetKeyPress('S')) {
-		m_Position.z += -0.5f;
-	}
-	if (CInput::GetKeyPress('D')) {
-		m_Position.x += 0.5f;
-	}
+	
+}
 
+void CModel::Update(XMFLOAT3 deltaPos)
+{
+	m_Position.x += deltaPos.x;
+	m_Position.y += deltaPos.y;
+	m_Position.z += deltaPos.z;
 }
 
 void CModel::Draw()
 {
 
 	// マトリクス設定
+	
 	XMMATRIX world;
-	world = XMMatrixScaling( m_Scale.x, m_Scale.y, m_Scale.z );
+	world = XMMatrixIdentity();
+	world *= XMMatrixScaling( m_Scale.x, m_Scale.y, m_Scale.z );
 	world *= XMMatrixRotationRollPitchYaw( m_Rotation.x, m_Rotation.y, m_Rotation.z );
 	world *= XMMatrixTranslation( m_Position.x, m_Position.y, m_Position.z );
 	CRenderer::SetWorldMatrix( &world );
-
+	
 	// 頂点バッファ設定
 	CRenderer::SetVertexBuffers( m_VertexBuffer );
 
@@ -74,6 +78,35 @@ void CModel::Draw()
 		CRenderer::DrawIndexed( m_SubsetArray[i].IndexNum, m_SubsetArray[i].StartIndex, 0 );
 	}
 
+}
+
+void CModel::Draw(XMFLOAT3 m_Position)
+{
+	// マトリクス設定
+	XMMATRIX world;
+	world = XMMatrixIdentity();
+	world *= XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
+	world *= XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
+	world *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
+	CRenderer::SetWorldMatrix(&world);
+
+	// 頂点バッファ設定
+	CRenderer::SetVertexBuffers(m_VertexBuffer);
+
+	// インデックスバッファ設定
+	CRenderer::SetIndexBuffer(m_IndexBuffer);
+
+	for (unsigned short i = 0; i < m_SubsetNum; i++)
+	{
+		// マテリアル設定
+		CRenderer::SetMaterial(m_SubsetArray[i].Material.Material);
+
+		// テクスチャ設定
+		CRenderer::SetTexture(m_SubsetArray[i].Material.Texture);
+
+		// ポリゴン描画
+		CRenderer::DrawIndexed(m_SubsetArray[i].IndexNum, m_SubsetArray[i].StartIndex, 0);
+	}
 }
 
 
@@ -170,7 +203,7 @@ void CModel::LoadObj( const char *FileName, MODEL *Model )
 	unsigned short	positionNum = 0;
 	unsigned short	normalNum = 0;
 	unsigned short	texcoordNum = 0;
-	unsigned short	vertexNum = 0;
+	unsigned int	vertexNum = 0;
 	unsigned short	indexNum = 0;
 	unsigned short	in = 0;
 	unsigned short	subsetNum = 0;

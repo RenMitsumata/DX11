@@ -3,7 +3,6 @@
 
 
 
-
 // í∏ì_ç\ë¢ëÃ
 struct VERTEX_3D
 {

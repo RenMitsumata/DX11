@@ -1,5 +1,7 @@
 #pragma once
 
+#include "main.h"
+
 class CGameObject
 {
 protected:

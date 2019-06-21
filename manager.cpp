@@ -1,13 +1,7 @@
-
 #include "main.h"
 #include "renderer.h"
-#include "GameObject.h"
-#include "polygon.h"
-#include "camera.h"
-#include "Field.h"
-#include "model.h"
-#include "Scene.h"
 #include "input.h"
+#include "Scene.h"
 #include "manager.h"
 
 
@@ -47,8 +41,12 @@ void CManager::Draw()
 
 	CRenderer::Begin();
 	g_Scene->Draw();
-	
 
 	CRenderer::End();
 
+}
+
+CScene * CManager::GetScene()
+{
+	return g_Scene;
 }

@@ -1,5 +1,6 @@
 #pragma once
-#include "main.h"
+
+//class CTexture;
 class CField : public CGameObject
 {
 private:
