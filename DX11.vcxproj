@@ -20,8 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="CBullet.cpp" />
     <ClCompile Include="CPlayer.cpp" />
     <ClCompile Include="CShadow.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Field.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="input.cpp" />
@@ -34,8 +36,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="CBullet.h" />
     <ClInclude Include="CPlayer.h" />
     <ClInclude Include="CShadow.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="Field.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="input.h" />

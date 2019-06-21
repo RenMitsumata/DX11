@@ -1,5 +1,7 @@
-
+#include "main.h"
 #include "texture.h"
+
+#include "renderer.h"
 #include "CShadow.h"
 
 VERTEX_3D vertex[4];

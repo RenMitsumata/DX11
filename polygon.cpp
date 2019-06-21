@@ -1,7 +1,7 @@
 #include "main.h"
-#include "renderer.h"
 #include "texture.h"
-#include <d3d11.h>
+
+#include "renderer.h"
 #include "GameObject.h"
 #include "polygon.h"
 

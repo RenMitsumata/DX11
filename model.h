@@ -50,8 +50,10 @@ private:
 
 public:
 	void Init();
+	void Init(const char * filename);
 	void Uninit();
 	void Update();
+	void Update(XMFLOAT3 deltaPos);
 	void Draw();
 	void Draw(XMFLOAT3 m_Position);
 	void Load( const char *FileName );

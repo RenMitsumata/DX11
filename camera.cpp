@@ -1,9 +1,8 @@
-
 #include "main.h"
 #include "renderer.h"
 #include "GameObject.h"
 #include "camera.h"
-#include "input.h"
+
 
 
 
@@ -43,6 +42,7 @@ void CCamera::Uninit()
 
 void CCamera::Update()
 {
+	/*
 	if (CInput::GetKeyPress(VK_UP)) {
 		m_Position.z += 0.5f;
 	}
@@ -55,6 +55,7 @@ void CCamera::Update()
 	if (CInput::GetKeyPress(VK_RIGHT)) {
 		m_Position.x += 0.5f;
 	}
+	*/
 	XMMATRIX viewMatrix = XMMatrixLookAtLH(eye, focus, up);
 	XMMATRIX projMatrix = XMMatrixPerspectiveFovLH(fov, aspect, nearZ, farZ);
 

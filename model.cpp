@@ -1,8 +1,10 @@
 
+#include "main.h"
+#include "renderer.h"
 
 #include "texture.h"
+
 #include "model.h"
-#include "input.h"
 
 
 void CModel::Init()
@@ -14,6 +16,15 @@ void CModel::Init()
 
 	Load( "asset/miku_01.obj" );
 		
+}
+
+void CModel::Init(const char* filename) {
+	m_Position = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	m_Rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+
+
+	Load(filename);
 }
 
 
@@ -28,27 +39,13 @@ void CModel::Uninit()
 void CModel::Update()
 {
 	
-	if (CInput::GetKeyPress('W')) {
-		m_Position.z += 0.1f;
-	}
-	if (CInput::GetKeyPress('A')) {
-		m_Position.x += -0.1f;
-	}
-	if (CInput::GetKeyPress('S')) {
-		m_Position.z += -0.1f;
-	}
-	if (CInput::GetKeyPress('D')) {
-		m_Position.x += 0.1f;
-	}
+}
 
-	if (CInput::GetKeyPress(VK_LSHIFT)) {
-		m_Rotation.y += 0.05f;
-	}
-
-	if (CInput::GetKeyPress(VK_RSHIFT)) {
-		m_Rotation.y -= 0.05f;
-	}
-	
+void CModel::Update(XMFLOAT3 deltaPos)
+{
+	m_Position.x += deltaPos.x;
+	m_Position.y += deltaPos.y;
+	m_Position.z += deltaPos.z;
 }
 
 void CModel::Draw()
@@ -206,7 +203,7 @@ void CModel::LoadObj( const char *FileName, MODEL *Model )
 	unsigned short	positionNum = 0;
 	unsigned short	normalNum = 0;
 	unsigned short	texcoordNum = 0;
-	unsigned short	vertexNum = 0;
+	unsigned int	vertexNum = 0;
 	unsigned short	indexNum = 0;
 	unsigned short	in = 0;
 	unsigned short	subsetNum = 0;

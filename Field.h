@@ -1,4 +1,6 @@
 #pragma once
+
+//class CTexture;
 class CField : public CGameObject
 {
 private:

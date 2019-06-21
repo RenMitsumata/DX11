@@ -1,7 +1,14 @@
 
-#include "texture.h"
+#include "main.h"
+#include "renderer.h"
 
+#include "GameObject.h"
+#include "model.h"
 
+#include "CShadow.h"
+#include "Scene.h"
+#include "input.h"
+#include "manager.h"
 #include "CPlayer.h"
 
 
@@ -36,10 +43,16 @@ void CPlayer::Uninit(void)
 void CPlayer::Update(void)
 {
 	m_Model->Update();
+	
+	if (CInput::GetKeyTrigger(VK_SPACE)) {
+		CScene* scene = CManager::GetScene();
+		m_Bullet = scene->AddGameObject<CBullet>(2);
+	}
 }
 
 void CPlayer::Draw(void)
 {
 	m_Shadow->Draw(m_Position);
+	
 	m_Model->Draw();
 }
