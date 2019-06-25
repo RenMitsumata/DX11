@@ -11,7 +11,8 @@ class CPlayer :	public CGameObject
 private:
 	CModel* m_Model = NULL;
 	CShadow* m_Shadow = NULL;
-	CBullet* m_Bullet = NULL;
+	CBullet* m_Bullet[10] = {};
+	int bulletCnt;
 public:
 	CPlayer();
 	virtual ~CPlayer();

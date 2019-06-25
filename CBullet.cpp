@@ -30,12 +30,14 @@ void CBullet::Uninit(void)
 void CBullet::Update(void)
 {
 	m_Position.z = 0.05f;
-	m_Position.y = 0.05f;
+	m_Position.y = 0.00f;
 	m_Model->Update(m_Position);
 }
 
 void CBullet::Draw(void)
 {
+	
+
 	m_Model->Draw();
 }
 

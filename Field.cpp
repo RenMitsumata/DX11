@@ -143,6 +143,6 @@ void CField::Draw()
 		CRenderer::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		CRenderer::GetDeviceContext()->Draw((g_Num), 0);
 	}
-
+	
 }
 
