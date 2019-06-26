@@ -7,6 +7,7 @@ class CEnemy : public CGameObject
 private:
 	CModel* m_Model = NULL;
 	CShadow* m_Shadow = NULL;
+	CColSphere* m_Col = NULL;
 public:
 	CEnemy();
 	virtual ~CEnemy();

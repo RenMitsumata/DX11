@@ -1,8 +1,10 @@
 #include "main.h"
-#include "texture.h"
 
 #include "renderer.h"
+#include "texture.h"
 #include "GameObject.h"
+
+
 #include "Field.h"
 
 static XMMATRIX mtx;
