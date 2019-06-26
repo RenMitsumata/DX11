@@ -1,8 +1,10 @@
 #include "main.h"
-#include "texture.h"
 
 #include "renderer.h"
+#include "texture.h"
 #include "GameObject.h"
+
+
 #include "Field.h"
 
 static XMMATRIX mtx;
@@ -143,6 +145,6 @@ void CField::Draw()
 		CRenderer::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		CRenderer::GetDeviceContext()->Draw((g_Num), 0);
 	}
-
+	
 }
 

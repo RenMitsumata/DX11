@@ -1,14 +1,13 @@
 
 #include "main.h"
 #include "renderer.h"
+#include "manager.h"
+#include "Scene.h"
 
-#include "GameObject.h"
 #include "model.h"
 
 #include "CShadow.h"
-#include "Scene.h"
 #include "input.h"
-#include "manager.h"
 #include "CPlayer.h"
 
 
@@ -30,6 +29,7 @@ void CPlayer::Init(void)
 	m_Position = { 0.0f,0.5f,0.0f };
 	m_Model->Init();
 	m_Shadow->Init();
+	bulletCnt = 0;
 }
 
 void CPlayer::Uninit(void)
@@ -43,16 +43,39 @@ void CPlayer::Uninit(void)
 void CPlayer::Update(void)
 {
 	m_Model->Update();
-	
-	if (CInput::GetKeyTrigger(VK_SPACE)) {
-		CScene* scene = CManager::GetScene();
-		m_Bullet = scene->AddGameObject<CBullet>(2);
+	for (int i = 0; i < bulletCnt; i++) {
+		m_Bullet[i]->Update();
 	}
+	if (CInput::GetKeyTrigger(VK_SPACE)) {
+		
+		m_Bullet[bulletCnt] = new CBullet(this);
+		m_Bullet[bulletCnt]->Init();
+		bulletCnt++;
+		
+	}
+	
+
+	if (CInput::GetKeyPress('W')) {
+		m_Position.z += 0.05f;
+	}
+	if (CInput::GetKeyPress('A')) {
+		m_Position.x -= 0.05f;
+	}
+	if (CInput::GetKeyPress('S')) {
+		m_Position.z -= 0.05f;
+	}
+	if (CInput::GetKeyPress('D')) {
+		m_Position.x += 0.05f;
+	}
+	
 }
 
 void CPlayer::Draw(void)
 {
 	m_Shadow->Draw(m_Position);
+	for (int i = 0; i < bulletCnt; i++) {
+		m_Bullet[i]->Draw();
+	}
 	
-	m_Model->Draw();
+	m_Model->Draw(m_Position);
 }

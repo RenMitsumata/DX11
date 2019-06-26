@@ -1,19 +1,18 @@
 #pragma once
 
+#define FOCUS_LENGTH (5)
 
 class CCamera : public CGameObject
 {
 private:
 	
-	XMFLOAT3					m_Position;
-	XMFLOAT3					m_Rotation;
 	
 	RECT m_Viewport;
 
 	XMMATRIX worldMatrix;
 
 	XMVECTOR eye;
-	XMVECTOR focus;
+	XMVECTOR at;
 	XMVECTOR up;
 
 
