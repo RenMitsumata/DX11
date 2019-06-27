@@ -15,10 +15,9 @@ CBullet::CBullet()
 {
 }
 
-CBullet::CBullet(CGameObject* owner, int mgrNum)
+CBullet::CBullet(CGameObject* owner)
 {
 	this->owner = owner;
-	this->mgrNum = mgrNum;
 	m_Destroy = false;
 }
 
@@ -34,13 +33,12 @@ void CBullet::Init(void)
 	m_Position = { 0.0f,0.0f,0.0f };
 	m_Collision = CManager::GetScene()->AddCollision<CColSphere>();
 	m_Collision->Init(&m_Position);
-	m_Collision->Attach(this);
 	m_Collision->SetRadius(2.0f);
+	m_Collision->Attach(this);
 }
 
 void CBullet::Uninit(void)
 {
-	CPlayer::DeleteBullet(mgrNum);
 	delete m_Model;
 }
 
