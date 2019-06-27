@@ -5,14 +5,12 @@
 #include "Scene.h"
 
 #include "model.h"
-
 #include "CShadow.h"
 #include "input.h"
 #include "CPlayer.h"
 
-
-
-
+CBullet* CPlayer::m_Bullet[10];
+int CPlayer::bulletCnt;
 CPlayer::CPlayer()
 {
 }
@@ -45,11 +43,11 @@ void CPlayer::Update(void)
 	m_Model->Update();
 	for (int i = 0; i < bulletCnt; i++) {
 		m_Bullet[i]->Update();
+		
 	}
 	if (CInput::GetKeyTrigger(VK_SPACE)) {
 		
-		m_Bullet[bulletCnt] = new CBullet(this);
-		m_Bullet[bulletCnt]->Init();
+		m_Bullet[bulletCnt] = CManager::GetScene()->AddGameObject<CBullet>(2);
 		bulletCnt++;
 		
 	}
@@ -68,14 +66,34 @@ void CPlayer::Update(void)
 		m_Position.x += 0.05f;
 	}
 	
+	
+	
 }
 
 void CPlayer::Draw(void)
 {
 	m_Shadow->Draw(m_Position);
+	
+	
+
+
 	for (int i = 0; i < bulletCnt; i++) {
+		if (m_Bullet[i] == nullptr) {
+			continue;
+		}
 		m_Bullet[i]->Draw();
 	}
 	
+
 	m_Model->Draw(m_Position);
+}
+
+void CPlayer::DeleteBullet(int mgrNum)
+{
+	// ƒŠƒXƒg‚ğ®—
+	m_Bullet[mgrNum] = nullptr;
+	for (int i = mgrNum; i < bulletCnt; i++) {
+		m_Bullet[i] = m_Bullet[i + 1];
+	}
+	bulletCnt--;
 }
