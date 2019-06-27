@@ -7,10 +7,9 @@
 #include "model.h"
 #include "CShadow.h"
 #include "input.h"
+#include <list>
 #include "CPlayer.h"
 
-CBullet* CPlayer::m_Bullet[10];
-int CPlayer::bulletCnt;
 CPlayer::CPlayer()
 {
 }
@@ -27,7 +26,6 @@ void CPlayer::Init(void)
 	m_Position = { 0.0f,0.5f,0.0f };
 	m_Model->Init();
 	m_Shadow->Init();
-	bulletCnt = 0;
 }
 
 void CPlayer::Uninit(void)
@@ -41,16 +39,19 @@ void CPlayer::Uninit(void)
 void CPlayer::Update(void)
 {
 	m_Model->Update();
-	for (int i = 0; i < bulletCnt; i++) {
-		m_Bullet[i]->Update();
-		
-	}
 	if (CInput::GetKeyTrigger(VK_SPACE)) {
 		
-		m_Bullet[bulletCnt] = CManager::GetScene()->AddGameObject<CBullet>(2);
-		bulletCnt++;
+		CBullet* bullet = new CBullet(this);
+		bullet->Init();
+		_Bulletlist.push_back(bullet);
 		
 	}
+	for (CBullet* bullet : _Bulletlist) {
+		bullet->Update();
+	}
+	_Bulletlist.remove_if([](CBullet* bullet) {
+		return bullet->isDestroy();
+	});
 	
 
 	if (CInput::GetKeyPress('W')) {
@@ -74,26 +75,12 @@ void CPlayer::Draw(void)
 {
 	m_Shadow->Draw(m_Position);
 	
-	
-
-
-	for (int i = 0; i < bulletCnt; i++) {
-		if (m_Bullet[i] == nullptr) {
-			continue;
-		}
-		m_Bullet[i]->Draw();
+	for (CBullet* bullet : _Bulletlist) {
+		bullet->Draw();
 	}
+
 	
 
 	m_Model->Draw(m_Position);
 }
 
-void CPlayer::DeleteBullet(int mgrNum)
-{
-	// ƒŠƒXƒg‚ğ®—
-	m_Bullet[mgrNum] = nullptr;
-	for (int i = mgrNum; i < bulletCnt; i++) {
-		m_Bullet[i] = m_Bullet[i + 1];
-	}
-	bulletCnt--;
-}

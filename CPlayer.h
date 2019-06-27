@@ -11,8 +11,7 @@ class CPlayer :	public CGameObject
 private:
 	CModel* m_Model = NULL;
 	CShadow* m_Shadow = NULL;
-	static CBullet* m_Bullet[10];
-	static int bulletCnt;
+	std::list<CBullet*> _Bulletlist;
 public:
 	CPlayer();
 	virtual ~CPlayer();
@@ -20,6 +19,5 @@ public:
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
-	static void DeleteBullet(int mgrNum);
 };
 
