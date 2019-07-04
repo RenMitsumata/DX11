@@ -27,6 +27,16 @@ void CModel::Init(const char* filename) {
 	Load(filename);
 }
 
+void CModel::Init(const char * filename, XMFLOAT3 pos)
+{
+	m_Position = pos;
+	m_Rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+
+
+	Load(filename);
+}
+
 
 void CModel::Uninit()
 {
@@ -164,10 +174,11 @@ void CModel::Load( const char *FileName )
 			m_SubsetArray[i].IndexNum = model.SubsetArray[i].IndexNum;
 
 			m_SubsetArray[i].Material.Material = model.SubsetArray[i].Material.Material;
-
 			m_SubsetArray[i].Material.Texture = new CTexture();
-			m_SubsetArray[i].Material.Texture->Load( model.SubsetArray[i].Material.TextureName );
-
+			if (model.SubsetArray[i].Material.TextureName[0] != '\0') {
+				m_SubsetArray[i].Material.Texture->Load(model.SubsetArray[i].Material.TextureName);
+			}
+			
 		}
 	}
 

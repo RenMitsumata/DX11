@@ -51,6 +51,7 @@ private:
 public:
 	void Init();
 	void Init(const char * filename);
+	void Init(const char * filename,XMFLOAT3 pos);
 	void Uninit();
 	void Update();
 	void Update(XMFLOAT3 deltaPos);

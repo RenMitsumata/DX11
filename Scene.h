@@ -67,6 +67,8 @@ public:
 		AddGameObject<CField>(1);
 		AddGameObject<CPlayer>(2);
 		AddGameObject<CEnemy>(2);
+		AddGameObject<CEnemy>(2);
+		AddGameObject<CEnemy>(2);
 		AddGameObject<CPolygon>(4);
 		
 	}

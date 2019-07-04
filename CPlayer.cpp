@@ -41,7 +41,7 @@ void CPlayer::Update(void)
 	m_Model->Update();
 	if (CInput::GetKeyTrigger(VK_SPACE)) {
 		
-		CBullet* bullet = new CBullet(this);
+		CBullet* bullet = new CBullet(this,m_Position);
 		bullet->Init();
 		_Bulletlist.push_back(bullet);
 		

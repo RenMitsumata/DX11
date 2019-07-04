@@ -12,7 +12,7 @@ private:
 	CGameObject* owner;
 public:
 	CBullet();
-	CBullet(CGameObject* owner);
+	CBullet(CGameObject* owner,XMFLOAT3 pos);
 	virtual ~CBullet();
 	void Init(void);
 	void Uninit(void);
