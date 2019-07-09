@@ -13,8 +13,10 @@ static XMFLOAT3** vertexPos;
 static ID3D11Buffer* index;
 static int g_Num;
 VERTEX_3D* CField::vertex;
-
-#define SQUARE_NUMBER (30)
+XMFLOAT3 AddXMFloat3(XMFLOAT3 a, XMFLOAT3 b);
+XMFLOAT3 DecXMFloat3(XMFLOAT3 a, XMFLOAT3 b);
+XMFLOAT3 ScalXMFloat3(XMFLOAT3 a, float b);
+#define SQUARE_NUMBER (100)
 #define SQUARE_SIZE (1.0f)
 
 XMVECTOR faceQuadNormal[SQUARE_NUMBER * SQUARE_NUMBER];
@@ -45,7 +47,7 @@ void CField::Init()
 		for (int j = 0; j < (2 * (n + 1)); j++,count++) {
 			vertex[count].Position.x = m_Position.x - (n * 0.5f - (j % 2) - i) * SQUARE_SIZE;
 			float r = (rand() % 10) * 0.05f;
-			if ((i != 0) && (count / 2)) {
+			if ((i != 0) && !(count % 2)) {
 				vertex[count].Position.y = vertex[count - (2 * (n + 1)) - 1].Position.y;
 			}
 			else {
@@ -66,9 +68,11 @@ void CField::Init()
 			vertex[count] = vertex[count - 2 * (n + 1)];
 			count++;
 		}
+
+
 	}
 
-
+	/*
 	// === 頂点の法線ベクトルを求める ===
 	// まずはすべての面の法線ベクトルを求める
 	const int faceNum = SQUARE_NUMBER * SQUARE_NUMBER * 2;
@@ -148,7 +152,7 @@ void CField::Init()
 			count++;
 		}
 	}
-	
+	*/
 	
 
 
@@ -251,6 +255,45 @@ void CField::Draw()
 	
 }
 
+float CField::GetHeight(XMFLOAT3 pos) {
+	int x, z;
+	XMFLOAT3 p0, p1, p2, v01, v02, n, v, hp, va, vb;
+	float dp0n, dvn, dpn, t;
+	v = XMFLOAT3(0.0f, -10.0f, 0.0f);
+
+	x = (pos.x + (SQUARE_SIZE * SQUARE_NUMBER / 2)) / SQUARE_SIZE;
+	z = (-pos.z + (SQUARE_SIZE * SQUARE_NUMBER / 2)) / SQUARE_SIZE;
+	va.x = vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 2)].Position.x - vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 1)].Position.x;
+	va.y = vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 2)].Position.y - vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 1)].Position.y;
+	va.z = vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 2)].Position.z - vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 1)].Position.z;
+	vb.x = pos.x - vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 1)].Position.x;
+	vb.y = pos.y - vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 1)].Position.y;
+	vb.z = pos.z - vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 1)].Position.z;
+	if (va.x * vb.z - vb.x - va.z > 0.0f) {
+		// 左上
+		p0 = vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 0)].Position;
+		p1 = vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 1)].Position;
+		p2 = vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 2)].Position;
+	}
+	else {
+		// 右下
+		p0 = vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 3)].Position;
+		p1 = vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 2)].Position;
+		p2 = vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 1)].Position;
+	}
+	v01 = DecXMFloat3(p1 ,p0);
+	v02 = DecXMFloat3(p2, p0);
+	XMVECTOR V01 = XMLoadFloat3(&v01);
+	XMVECTOR V02 = XMLoadFloat3(&v02);
+	XMStoreFloat3(&n,XMVector3Cross(V01, V02));
+	dvn = v.x*n.x + v.y*n.y + v.z*n.z;
+	dp0n = p0.x * n.x + p0.y * n.y + p0.z * n.z;
+	dpn = pos.x*n.x + pos.y*n.y + pos.z*n.z;
+	t = (dp0n - dpn) / dvn;
+	hp = AddXMFloat3(pos,ScalXMFloat3(v,t));
+	return hp.y;
+}
+
 XMFLOAT4 CField::GetNormal(XMFLOAT3 * pos)
 {
 	// 得られたposから、何枚目のポリゴンにいるかを求める。
@@ -259,6 +302,7 @@ XMFLOAT4 CField::GetNormal(XMFLOAT3 * pos)
 		// 禁じられた場所にいる
 		assert(false);
 	}
+
 	XMFLOAT3 checkpos = vertex[0].Position;
 	checkpos.x += SQUARE_SIZE;
 	checkpos.z -= SQUARE_SIZE;
@@ -284,33 +328,70 @@ XMFLOAT4 CField::GetNormal(XMFLOAT3 * pos)
 	vecRet = XMVector3Normalize(vecRet);
 	XMFLOAT4 ret;
 	XMStoreFloat4(&ret,vecRet);
+
+	
 	// いまいるべきY座標をretのwにぶち込む
-	XMFLOAT3 VecA;
-	VecA.x = pos->x - vertex[verANum].Position.x;
-	VecA.y = vertex[verANum].Position.y;
-	VecA.z = pos->z - vertex[verANum].Position.z;
+	XMFLOAT3 VecA;	// こいつが斜線
+	VecA.x = vertex[verBNum].Position.x - vertex[verANum].Position.x;
+	VecA.y = vertex[verBNum].Position.y - vertex[verANum].Position.y;
+	VecA.z = vertex[verBNum].Position.z - vertex[verANum].Position.z;
 	XMFLOAT3 VecB;
-	VecB.x = pos->x - vertex[verBNum].Position.x;
-	VecB.y = vertex[verBNum].Position.y;
-	VecB.z = pos->z - vertex[verBNum].Position.z;
-	XMFLOAT3 VecC;
-	if (ret.z >= 0) {
-		VecC.x = pos->x - vertex[verANum - 1].Position.x;
-		VecC.y = vertex[verANum - 1].Position.y;
-		VecC.z = pos->z - vertex[verANum - 1].Position.z;
+	VecB.x = pos->x - vertex[verANum].Position.x;
+	VecB.y = pos->y - vertex[verANum].Position.y;
+	VecB.z = pos->z - vertex[verANum].Position.z;
+	XMVECTOR VecC;
+	XMVECTOR bufA = XMLoadFloat3(&VecA);
+	XMVECTOR bufB = XMLoadFloat3(&VecB);
+	VecC = XMVector3Cross(bufA, bufB);
+	XMFLOAT3 judgeVec;
+	XMStoreFloat3(&judgeVec, VecC);
+	if (judgeVec.y > 0) {
+		// 左上
 	}
 	else {
-		VecC.x = pos->x - vertex[verBNum + 1].Position.x;
-		VecC.y = vertex[verBNum + 1].Position.y;
-		VecC.z = pos->z - vertex[verBNum + 1].Position.z;
+		// 右上
+	}
+
+	
+	XMFLOAT3 vecC;
+	if (ret.z >= 0) {
+		vecC.x = pos->x - vertex[verANum - 1].Position.x;
+		vecC.y = vertex[verANum - 1].Position.y;
+		vecC.z = pos->z - vertex[verANum - 1].Position.z;
+	}
+	else {
+		vecC.x = pos->x - vertex[verBNum + 1].Position.x;
+		vecC.y = vertex[verBNum + 1].Position.y;
+		vecC.z = pos->z - vertex[verBNum + 1].Position.z;
 	}
 	float A = sqrt(VecA.x * VecA.x + VecA.z * VecA.z);
 	float B = sqrt(VecB.x * VecB.x + VecB.z * VecB.z);
-	float C = sqrt(VecC.x * VecC.x + VecC.z * VecC.z);
+	float C = sqrt(vecC.x * vecC.x + vecC.z * vecC.z);
 	
-	ret.w = ((B + C) / (A + B + C)) * VecA.y + ((A + C) / (A + B + C)) * VecB.y + ((B + A) / (A + B + C)) * VecC.y;
+	ret.w = ((B + C) / (A + B + C)) * VecA.y + ((A + C) / (A + B + C)) * VecB.y + ((B + A) / (A + B + C)) * vecC.y;
 
 	return ret;
-
 }
 
+XMFLOAT3 AddXMFloat3(XMFLOAT3 a, XMFLOAT3 b) {
+	XMFLOAT3 ret;
+	ret.x = a.x + b.x;
+	ret.y = a.y + b.y;
+	ret.z = a.z + b.z;
+	return ret;
+}
+XMFLOAT3 DecXMFloat3(XMFLOAT3 a, XMFLOAT3 b) {
+	XMFLOAT3 ret;
+	ret.x = a.x - b.x;
+	ret.y = a.y - b.y;
+	ret.z = a.z - b.z;
+	return ret;
+}
+
+XMFLOAT3 ScalXMFloat3(XMFLOAT3 a, float b) {
+	XMFLOAT3 ret;
+	ret.x = a.x * b;
+	ret.y = a.y * b;
+	ret.z = a.z * b;
+	return ret;
+}

@@ -126,7 +126,7 @@ void CModel::Draw(XMFLOAT3 m_Position,XMVECTOR m_vecRotation) {
 	world *= XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
 //	world *= XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
 //	world *= XMMatrixRotationRollPitchYawFromVector(m_vecRotation);
-//	world *= XMMatrixRotationAxis(m_vecRotation, 0);
+	world *= XMMatrixRotationAxis(m_vecRotation, 10);
 	world *= 1;
 	
 	world *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);

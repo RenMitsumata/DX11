@@ -69,14 +69,15 @@ void CPlayer::Update(void)
 	if (CInput::GetKeyPress('D')) {
 		m_Position.x += 0.05f;
 	}
+	if (CInput::GetKeyPress(VK_RETURN)) {
+		m_Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	}
 	
-	XMFLOAT4 vecNewUp = CField::GetNormal(&m_Position);
-	m_Position.y = vecNewUp.w + 0.3f;
-	XMFLOAT3 vec3Up;
-	vec3Up.x = vecNewUp.x;
-	vec3Up.y = vecNewUp.y;
-	vec3Up.z = vecNewUp.z;
-
+	float newPosY = CField::GetHeight(m_Position);
+	//XMFLOAT4 newPosY = CField::GetNormal(&m_Position);
+	m_Position.y = newPosY + 0.3f;
+	
+	
 }
 
 void CPlayer::Draw(void)
@@ -86,6 +87,7 @@ void CPlayer::Draw(void)
 	for (CBullet* bullet : _Bulletlist) {
 		bullet->Draw();
 	}
+	
 	
 	m_Model->Draw(m_Position);
 }
