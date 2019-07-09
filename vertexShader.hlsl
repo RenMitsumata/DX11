@@ -34,7 +34,13 @@ cbuffer MaterialBuffer : register( b3 )
 	MATERIAL	Material;
 }
 
-
+float4x4 InvTangentMatrix(float3 tangent,float3 binormal,float3 normal) {
+	float4x4 mat = { float4(tangent,0.0f),
+					 float4(binormal,0.0f),
+					 float4(normal,0.0f),
+					{0.0f,0.0f,0.0f,1.0f} };
+	return transpose(mat);
+}
 // ライトバッファ
 struct LIGHT
 {
@@ -76,6 +82,8 @@ void main( in  float4 inPosition		: POSITION0,
 	worldNormal = mul(normal, World);
 	worldNormal = normalize(worldNormal);
 
+	//outDiffuse.lightTangentDirect = mul(-lightLocalDirect, InvTangentMatrix(tangent, binormal, normal));
+	
 	float light = 0.5 - 0.5 * dot(Light.Direction.xyz, worldNormal.xyz);
 
 	outDiffuse = inDiffuse * Material.Diffuse * light * Light.Diffuse;

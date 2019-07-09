@@ -8,6 +8,7 @@ private:
 	ID3D11Buffer* m_IndexBuffer = NULL;
 	CTexture* m_Texture = NULL;
 	CTexture* m_WallTexture = NULL;
+	static VERTEX_3D* vertex;
 public:
 	CField();
 	~CField();
@@ -15,5 +16,6 @@ public:
 	void Uninit();
 	void Update();
 	void Draw();
+	static XMFLOAT4 GetNormal(XMFLOAT3* pos);
 };
 

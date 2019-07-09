@@ -6,6 +6,7 @@
 
 #include "model.h"
 #include "CShadow.h"
+#include "Field.h"
 #include "input.h"
 #include <list>
 #include "CPlayer.h"
@@ -24,6 +25,8 @@ void CPlayer::Init(void)
 	m_Model = new CModel;
 	m_Shadow = new CShadow(5.0f);
 	m_Position = { 0.0f,0.5f,0.0f };
+	const XMFLOAT3 startFront = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	front = XMLoadFloat3(&startFront);
 	m_Model->Init();
 	m_Shadow->Init();
 }
@@ -67,8 +70,13 @@ void CPlayer::Update(void)
 		m_Position.x += 0.05f;
 	}
 	
-	
-	
+	XMFLOAT4 vecNewUp = CField::GetNormal(&m_Position);
+	m_Position.y = vecNewUp.w + 0.3f;
+	XMFLOAT3 vec3Up;
+	vec3Up.x = vecNewUp.x;
+	vec3Up.y = vecNewUp.y;
+	vec3Up.z = vecNewUp.z;
+
 }
 
 void CPlayer::Draw(void)
@@ -78,9 +86,7 @@ void CPlayer::Draw(void)
 	for (CBullet* bullet : _Bulletlist) {
 		bullet->Draw();
 	}
-
 	
-
 	m_Model->Draw(m_Position);
 }
 

@@ -11,6 +11,7 @@ class CPlayer :	public CGameObject
 private:
 	CModel* m_Model = NULL;
 	CShadow* m_Shadow = NULL;
+	XMVECTOR front;
 	std::list<CBullet*> _Bulletlist;
 public:
 	CPlayer();
