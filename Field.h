@@ -16,6 +16,8 @@ public:
 	void Uninit();
 	void Update();
 	void Draw();
+	static float GetHeight(XMFLOAT3 pos);
 	static XMFLOAT4 GetNormal(XMFLOAT3* pos);
 };
+
 
