@@ -8,6 +8,7 @@ private:
 	CModel* m_Model = NULL;
 	CShadow* m_Shadow = NULL;
 	CColSphere* m_Col = NULL;
+	static int Cnt;
 public:
 	CEnemy();
 	virtual ~CEnemy();

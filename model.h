@@ -51,11 +51,13 @@ private:
 public:
 	void Init();
 	void Init(const char * filename);
+	void Init(const char * filename,XMFLOAT3 pos);
 	void Uninit();
 	void Update();
 	void Update(XMFLOAT3 deltaPos);
 	void Draw();
 	void Draw(XMFLOAT3 m_Position);
+	void Draw(XMFLOAT3 m_Position, XMVECTOR m_vecRotation);
 	void Load( const char *FileName );
 	void Unload();
 

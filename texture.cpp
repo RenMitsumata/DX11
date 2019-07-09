@@ -35,14 +35,15 @@ void CTexture::Load(const char *FileName)
 	else
 		bpp = 0;
 
-	if (bpp != 4) {
+	if ((bpp != 4) && (bpp != 3)) {
 		assert(false);
 	}
 
 	size = width * height * bpp;
+	int alloc = width * height * 4;
 
 	// ƒƒ‚ƒŠŠm•Û
-	image = (unsigned char*)new unsigned char[size];
+	image = (unsigned char*)new unsigned char[alloc];
 
 	// ‰æ‘œ“Ç‚İ‚İ
 	fread(image, size, 1, file);
@@ -53,9 +54,12 @@ void CTexture::Load(const char *FileName)
 		for (unsigned int x = 0; x < width; x++)
 		{
 			unsigned char c;
-			c = image[(y * width + x) * bpp + 0];
-			image[(y * width + x) * bpp + 0] = image[(y * width + x) * bpp + 2];
-			image[(y * width + x) * bpp + 2] = c;
+			c = image[(y * width + x) * 4 + 0];
+			image[(y * width + x) * 4 + 0] = image[(y * width + x) * 4 + 2];
+			image[(y * width + x) * 4 + 2] = c;
+			if (bpp == 3) {
+				image[(y * width + x) * 4 + 3] = 255;
+			}
 		}
 	}
 

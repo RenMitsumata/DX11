@@ -3,12 +3,11 @@
 #include "main.h"
 
 class CGameObject
-{
-private:
-	bool m_Destroy = false;
+{	
 protected:
 	XMFLOAT3 m_Position;
 	XMFLOAT3 m_Rotation;
+	bool m_Destroy = false;
 public:
 	CGameObject() {};
 	virtual ~CGameObject() {};

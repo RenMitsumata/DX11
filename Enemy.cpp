@@ -10,7 +10,7 @@
 #include "CColSphere.h"
 #include "Enemy.h"
 
-
+int CEnemy::Cnt = 0;
 
 CEnemy::CEnemy()
 {
@@ -24,13 +24,14 @@ CEnemy::~CEnemy()
 void CEnemy::Init(void)
 {
 	m_Model = new CModel;
+	m_Model->Init("asset/miku_01.obj",m_Position);
 	m_Shadow = new CShadow(5.0f);
-	m_Position = { 0.0f,0.5f,10.0f };
+	m_Position = { 0.0f,0.5f,(Cnt + 1) * 5.0f };
 	m_Col = CManager::GetScene()->AddCollision<CColSphere>();
 	m_Col->Init(&m_Position);
 	m_Col->Attach(this);
-	m_Model->Init();
 	m_Shadow->Init();
+	Cnt++;
 }
 
 void CEnemy::Uninit(void)

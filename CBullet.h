@@ -3,7 +3,7 @@
 
 
 class CModel;
-class CBullet
+class CBullet : public CGameObject
 {
 private:
 	CModel* m_Model;
@@ -12,11 +12,12 @@ private:
 	CGameObject* owner;
 public:
 	CBullet();
-	CBullet(CGameObject* owner);
+	CBullet(CGameObject* owner,XMFLOAT3 pos);
 	virtual ~CBullet();
 	void Init(void);
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
+	bool isDestroy(void) { return m_Destroy; }
 };
 

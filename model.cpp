@@ -27,6 +27,16 @@ void CModel::Init(const char* filename) {
 	Load(filename);
 }
 
+void CModel::Init(const char * filename, XMFLOAT3 pos)
+{
+	m_Position = pos;
+	m_Rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+
+
+	Load(filename);
+}
+
 
 void CModel::Uninit()
 {
@@ -109,7 +119,37 @@ void CModel::Draw(XMFLOAT3 m_Position)
 	}
 }
 
+void CModel::Draw(XMFLOAT3 m_Position,XMVECTOR m_vecRotation) {
+	// マトリクス設定
+	XMMATRIX world;
+	world = XMMatrixIdentity();
+	world *= XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
+//	world *= XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
+//	world *= XMMatrixRotationRollPitchYawFromVector(m_vecRotation);
+//	world *= XMMatrixRotationAxis(m_vecRotation, 0);
+	world *= 1;
+	
+	world *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
+	CRenderer::SetWorldMatrix(&world);
 
+	// 頂点バッファ設定
+	CRenderer::SetVertexBuffers(m_VertexBuffer);
+
+	// インデックスバッファ設定
+	CRenderer::SetIndexBuffer(m_IndexBuffer);
+
+	for (unsigned short i = 0; i < m_SubsetNum; i++)
+	{
+		// マテリアル設定
+		CRenderer::SetMaterial(m_SubsetArray[i].Material.Material);
+
+		// テクスチャ設定
+		CRenderer::SetTexture(m_SubsetArray[i].Material.Texture);
+
+		// ポリゴン描画
+		CRenderer::DrawIndexed(m_SubsetArray[i].IndexNum, m_SubsetArray[i].StartIndex, 0);
+	}
+}
 
 
 void CModel::Load( const char *FileName )
@@ -164,10 +204,11 @@ void CModel::Load( const char *FileName )
 			m_SubsetArray[i].IndexNum = model.SubsetArray[i].IndexNum;
 
 			m_SubsetArray[i].Material.Material = model.SubsetArray[i].Material.Material;
-
 			m_SubsetArray[i].Material.Texture = new CTexture();
-			m_SubsetArray[i].Material.Texture->Load( model.SubsetArray[i].Material.TextureName );
-
+			if (model.SubsetArray[i].Material.TextureName[0] != '\0') {
+				m_SubsetArray[i].Material.Texture->Load(model.SubsetArray[i].Material.TextureName);
+			}
+			
 		}
 	}
 
