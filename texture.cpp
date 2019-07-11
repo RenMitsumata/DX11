@@ -1,20 +1,33 @@
-
+#define STB_IMAGE_IMPLEMENTATION
 #include "main.h"
 #include "renderer.h"
+#include "stb-master/stb_image.h"
 #include "texture.h"
 
 
+
+static unsigned int texture[3];	// 2ŒÂˆÈãŠÇ—‚µ‚½‚¢ê‡‚Í”z—ñ‚É‚·‚é
+static unsigned int count = 0;
+
 void CTexture::Load(const char *FileName)
 {
+	
+	unsigned char	header[18];
+	unsigned char	*image;
+	int	width, height;
+	unsigned char	depth;
+	int	bpp;
+	unsigned int	size;
 
+	image = stbi_load(FileName, &width, &height, &bpp, 0);
+	/*
 	unsigned char	header[18];
 	unsigned char	*image;
 	unsigned int	width, height;
 	unsigned char	depth;
 	unsigned int	bpp;
 	unsigned int	size;
-
-
+	
 	// ƒwƒbƒ_“Ç‚İ‚İ
 	FILE* file;
 	file = fopen(FileName, "rb");
@@ -64,7 +77,8 @@ void CTexture::Load(const char *FileName)
 	}
 
 	fclose(file);
-
+	*/
+	size = width * height * bpp;
 
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
@@ -100,8 +114,8 @@ void CTexture::Load(const char *FileName)
 		assert(false);
 	}
 
-
-	delete image;
+	stbi_image_free(image);
+	//delete image;
 }
 
 

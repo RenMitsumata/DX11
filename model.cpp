@@ -1,10 +1,21 @@
-
+#define NOMINMAX
 #include "main.h"
 #include "renderer.h"
 
 #include "texture.h"
 
 #include "model.h"
+
+#include <Windows.h>
+
+#include <assimp\cimport.h>
+#include <assimp\scene.h>
+#include <assimp\postprocess.h>
+#include <assimp\matrix4x4.h>
+#pragma comment (lib,"assimp.lib")
+const aiScene* g_pScene = nullptr;
+unsigned int* g_Texture = nullptr;
+bool key;
 
 
 void CModel::Init()
@@ -23,7 +34,34 @@ void CModel::Init(const char* filename) {
 	m_Rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
+	
+	
+	g_pScene = aiImportFile(filename, aiProcessPreset_TargetRealtime_Quality);
+	
+	int index = g_pScene->mNumMaterials;	// マテリアル数
+	g_Texture = new unsigned int[index];
+	key = false;
+	aiString path;				// テクスチャファイル名の取得
 
+	for (int i = 0; i < g_pScene->mNumMaterials; i++) {
+
+		if (g_pScene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, 0, &path) == AI_SUCCESS)
+		{
+			std::string modelPath = "asset/MODEL/tank2/gatitan.obj";	// 例　モデルデータとテクスチャが同じフォルダにある
+			modelPath.c_str();	// 文字列の先頭アドレス
+			size_t pos = modelPath.find_last_of("\\/");
+			std::string texturePath = modelPath.substr(0, pos + 1);
+			texturePath += path.data;
+			//g_Texture[i] = Texture::Load(texturePath.c_str());
+
+		}
+		else {
+			g_Texture[i] = 0;
+		}
+	}
+	
+	
+	
 	Load(filename);
 }
 
@@ -95,8 +133,8 @@ void CModel::Draw(XMFLOAT3 m_Position)
 	// マトリクス設定
 	XMMATRIX world;
 	world = XMMatrixIdentity();
-	world *= XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
-	world *= XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
+	//world *= XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
+	//world *= XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
 	world *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
 	CRenderer::SetWorldMatrix(&world);
 

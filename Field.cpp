@@ -46,7 +46,9 @@ void CField::Init()
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < (2 * (n + 1)); j++,count++) {
 			vertex[count].Position.x = m_Position.x - (n * 0.5f - (j % 2) - i) * SQUARE_SIZE;
-			float r = (rand() % 10) * 0.05f;
+			//float r = 0.05f * (i % 10);
+			float r = sinf(i) * 0.5f + cosf(j) * 0.3f;
+			//float r = 0.05f * ((rand() % 10) + 1);
 			if ((i != 0) && !(count % 2)) {
 				vertex[count].Position.y = vertex[count - (2 * (n + 1)) - 1].Position.y;
 			}
@@ -195,7 +197,7 @@ void CField::Init()
 
 	
 	m_Texture = new CTexture;
-	m_Texture->Load("asset/field004.tga");
+	m_Texture->Load("asset/wall.tga");
 	
 	m_WallTexture = new CTexture;
 	m_WallTexture->Load("asset/wall.tga");
@@ -211,7 +213,7 @@ void CField::Uninit()
 	m_WallTexture->Unload();
 	m_Texture->Unload();
 	delete m_Texture;
-	delete vertex;
+	delete[] vertex;
 }
 
 void CField::Update()
@@ -237,7 +239,7 @@ void CField::Draw()
 	CRenderer::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	CRenderer::GetDeviceContext()->DrawIndexed((g_Num), 0,0);
 
-
+	/*
 	worldMtx *= XMMatrixRotationRollPitchYaw(XMConvertToRadians(90.0f), 0.0f, 0.0f);
 	worldMtx *= XMMatrixTranslation(0.0f, 0.0f, (SQUARE_SIZE * SQUARE_NUMBER) / 2);
 	CRenderer::SetWorldMatrix(&worldMtx);
@@ -252,7 +254,7 @@ void CField::Draw()
 		CRenderer::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		CRenderer::GetDeviceContext()->Draw((g_Num), 0);
 	}
-	
+	*/
 }
 
 float CField::GetHeight(XMFLOAT3 pos) {
@@ -269,7 +271,7 @@ float CField::GetHeight(XMFLOAT3 pos) {
 	vb.x = pos.x - vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 1)].Position.x;
 	vb.y = pos.y - vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 1)].Position.y;
 	vb.z = pos.z - vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 1)].Position.z;
-	if (va.x * vb.z - vb.x - va.z > 0.0f) {
+	if (va.x * vb.z - vb.x * va.z >= 0.0f) {
 		// ç∂è„
 		p0 = vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 0)].Position;
 		p1 = vertex[x * (SQUARE_NUMBER * 2 + 4) + (2 * z + 1)].Position;
