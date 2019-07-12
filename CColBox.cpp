@@ -1,4 +1,4 @@
-#include "GameObject.h"
+#include "main.h"
 
 #include "CCollision.h"
 #include "CColSphere.h"
@@ -27,7 +27,7 @@ void CColBox::Dispatch(CCollision * other)
 	bool is_Hit = other->isCollision(this);
 	if (is_Hit && owner) {
 		// “–‚½‚Á‚½‚ç‚Ç‚¤‚·‚é‚©
-		owner->SetDestroy();
+		//owner->SetDestroy();
 	}
 }
 

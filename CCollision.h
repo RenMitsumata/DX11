@@ -1,6 +1,7 @@
 #pragma once
 
 // 子クラスの前方宣言
+class CGameObject;
 class CColSphere;
 class CColBox;
 

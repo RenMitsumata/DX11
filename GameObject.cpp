@@ -1,3 +1,5 @@
+#include "main.h"
+
 #include "GameObject.h"
 
 bool CGameObject::Destroy(void) {

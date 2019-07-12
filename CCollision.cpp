@@ -1,4 +1,4 @@
-
+#include "main.h"
 #include "GameObject.h"
 #include "CCollision.h"
 
