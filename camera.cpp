@@ -130,7 +130,19 @@ void CCamera::Update()
 
 	}
 	
+	
+}
 
+void CCamera::Update(XMFLOAT3 newPos)
+{
+	eye = XMLoadFloat3(&newPos);
+}
+
+void CCamera::Update(XMFLOAT3 newPos,XMVECTOR frontVec,XMVECTOR upVec)
+{
+	eye = XMLoadFloat3(&newPos);
+	at = eye + frontVec * FOCUS_LENGTH;
+	up = upVec;
 }
 
 

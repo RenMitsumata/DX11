@@ -5,7 +5,6 @@
 #include "Scene.h"
 #include "CCollision.h"
 #include "CColSphere.h"
-#include "GameObject.h"
 #include "CPlayer.h"
 #include "model.h"
 #include "CBullet.h"

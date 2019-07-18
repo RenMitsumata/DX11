@@ -1,4 +1,4 @@
-
+#pragma once
 
 #ifndef COURCE_H
 #define COURCE_H
@@ -8,17 +8,26 @@
 
 
 //　CourceData：コース（メッシュフィールド）の座標および、プレイヤーの特定の時間における座標を表すもの。
+typedef struct VERTEX_Tag {
+	XMFLOAT3 position;
+	XMFLOAT3 normal;
+	XMFLOAT4 diffuse;
+	XMFLOAT2 texcoord;
+}VERTEX;
 typedef struct CourceData_Tag {
 	float distance;			//　スタート地点（０）からの距離。メッシュフィールド用。
 	XMFLOAT3 centerpos;	//　単位距離当たりのメッシュフィールドの中心座標
-	XMFLOAT3 vtxpos[4];	//　コース（メッシュフィールド）用に計算された頂点座標を収納する。
+	VERTEX vertex[4];	//　コース（メッシュフィールド）用に計算された頂点座標を収納する。
 	XMFLOAT3 vecFront;	//　コースの進行方向。計算に用いる
+	XMFLOAT3 pitchyawroll; //　どれくらい傾いているか
 }CourceData;
 
-class Cource
+class Cource : public CGameObject
 {
 private:
 	int courceLength;		//　コースの長さ
+	ID3D11Buffer* vertexBuffer = nullptr;	// 頂点バッファ
+	ID3D11Buffer* indexBuffer = nullptr; // インデックスバッファ
 	CourceData** courceData;
 	float yaw;				//　ニュートラル（playerのfrontがＺ＋方向を向いた状態）から、どれだけＹ軸回転をしているかを表す値。
 	float pitch;			//　ニュートラルから、どれだけＸ軸回転をしているかを表す値。
@@ -27,52 +36,16 @@ public:
 	Cource();
 	virtual ~Cource();
 	void Init(void);
-	void Draw(int currentPos);
+	void Draw(void);
+	void Update(void) {}
 	void Uninit(void);
 	XMFLOAT3 GetCource(float distance);
-	XMFLOAT3 GetTild(float distance);
+	XMVECTOR GetTild(float distance);
+	XMFLOAT3 GetPitchYawRoll(float distance);
+
 };
 //-----------------------------------
 #endif	// COURCE_H
 
-////////　オペレータのオーバーロード
-XMFLOAT3 operator + (XMFLOAT3 a, XMFLOAT3 b) {
-	XMFLOAT3 ret;
-	ret.x = a.x + b.x;
-	ret.y = a.y + b.y;
-	ret.z = a.z + b.z;
-	return ret;
-}
 
-XMFLOAT3 operator - (XMFLOAT3 a, XMFLOAT3 b) {
-	XMFLOAT3 ret;
-	ret.x = a.x - b.x;
-	ret.y = a.y - b.y;
-	ret.z = a.z - b.z;
-	return ret;
-}
-
-XMFLOAT3 operator * (XMFLOAT3 a, float b) {
-	XMFLOAT3 ret;
-	ret.x = a.x * b;
-	ret.y = a.y * b;
-	ret.z = a.z * b;
-	return ret;
-}
-
-XMFLOAT3 operator * (float a, XMFLOAT3 b) {
-	XMFLOAT3 ret;
-	ret.x = a * b.x;
-	ret.y = a * b.y;
-	ret.z = a * b.z;
-	return ret;
-}
-
-XMFLOAT3 operator / (XMFLOAT3 a, float b) {
-	XMFLOAT3 ret;
-	ret.x = a.x / b;
-	ret.y = a.y / b;
-	ret.z = a.z / b;
-	return ret;
-}
 

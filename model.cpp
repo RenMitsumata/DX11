@@ -4,20 +4,20 @@
 
 #include "texture.h"
 
-#include "model.h"
 
 #include <Windows.h>
-
+#include <vector>
 #include <assimp\cimport.h>
 #include <assimp\scene.h>
 #include <assimp\postprocess.h>
 #include <assimp\matrix4x4.h>
+#include "model.h"
 #pragma comment (lib,"assimp.lib")
 const aiScene* g_pScene = nullptr;
 unsigned int* g_Texture = nullptr;
 bool key;
-
-
+std::vector<XMMATRIX> _MatList;
+std::vector<ID3D11Buffer*> _Buflist;
 void CModel::Init()
 {
 	m_Position = XMFLOAT3( 0.0f, 1.0f, 0.0f );
@@ -34,8 +34,6 @@ void CModel::Init(const char* filename) {
 	m_Rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
-	
-	
 	g_pScene = aiImportFile(filename, aiProcessPreset_TargetRealtime_Quality);
 	
 	int index = g_pScene->mNumMaterials;	// マテリアル数
@@ -60,6 +58,8 @@ void CModel::Init(const char* filename) {
 		}
 	}
 	
+
+
 	
 	
 	Load(filename);
@@ -157,36 +157,62 @@ void CModel::Draw(XMFLOAT3 m_Position)
 	}
 }
 
-void CModel::Draw(XMFLOAT3 m_Position,XMVECTOR m_vecRotation) {
-	// マトリクス設定
-	XMMATRIX world;
-	world = XMMatrixIdentity();
-	world *= XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
-//	world *= XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
-//	world *= XMMatrixRotationRollPitchYawFromVector(m_vecRotation);
-	world *= XMMatrixRotationAxis(m_vecRotation, 10);
-	world *= 1;
-	
-	world *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
-	CRenderer::SetWorldMatrix(&world);
+void CModel::Draw(XMFLOAT3 m_Position, XMFLOAT3 pitchyawroll, unsigned int e_FILETYPE) {
+	switch (e_FILETYPE) {
+	case e_FILEOBJ:
+		// マトリクス設定
+		XMMATRIX world;
+		world = XMMatrixIdentity();
 
-	// 頂点バッファ設定
-	CRenderer::SetVertexBuffers(m_VertexBuffer);
+		world *= XMMatrixRotationRollPitchYaw(pitchyawroll.x, pitchyawroll.y, pitchyawroll.z);
+		world *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
+		CRenderer::SetWorldMatrix(&world);
 
-	// インデックスバッファ設定
-	CRenderer::SetIndexBuffer(m_IndexBuffer);
+		// 頂点バッファ設定
+		CRenderer::SetVertexBuffers(m_VertexBuffer);
 
-	for (unsigned short i = 0; i < m_SubsetNum; i++)
-	{
-		// マテリアル設定
-		CRenderer::SetMaterial(m_SubsetArray[i].Material.Material);
+		// インデックスバッファ設定
+		CRenderer::SetIndexBuffer(m_IndexBuffer);
 
-		// テクスチャ設定
-		CRenderer::SetTexture(m_SubsetArray[i].Material.Texture);
+		for (unsigned short i = 0; i < m_SubsetNum; i++)
+		{
+			// マテリアル設定
+			CRenderer::SetMaterial(m_SubsetArray[i].Material.Material);
 
-		// ポリゴン描画
-		CRenderer::DrawIndexed(m_SubsetArray[i].IndexNum, m_SubsetArray[i].StartIndex, 0);
+			// テクスチャ設定
+			CRenderer::SetTexture(m_SubsetArray[i].Material.Texture);
+
+			// ポリゴン描画
+			CRenderer::DrawIndexed(m_SubsetArray[i].IndexNum, m_SubsetArray[i].StartIndex, 0);
+		}
+
+		break;
+
+	case e_FILEFBX:
+		
+		aiNode* pNode = g_pScene->mRootNode;
+		
+		world = XMMatrixIdentity();
+
+		world *= XMMatrixRotationRollPitchYaw(pitchyawroll.x, pitchyawroll.y, pitchyawroll.z);
+		world *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
+
+
+		_MatList.push_back(world);
+
+		for (int i = 0; i < pNode->mNumChildren; i++) {
+			DrawChild(pNode->mChildren[i]);
+		}
+
+		_MatList.pop_back();
+		for (XMMATRIX matrix : _MatList) {
+			// 行列が残っていたらassert
+			assert(false);
+		}
+		break;
+
 	}
+	
 }
 
 
@@ -256,11 +282,35 @@ void CModel::Load( const char *FileName )
 
 }
 
+void CModel::LoadFBX(const char * filename)
+{
+	aiNode* pNode = g_pScene->mRootNode;
+	XMMATRIX world;
+	world = XMMatrixIdentity();
+
+	_MatList.push_back(world);
+
+	for (int i = 0; i < pNode->mNumChildren; i++) {
+		DrawChild(pNode->mChildren[i]);
+	}
+
+	_MatList.pop_back();
+	for (XMMATRIX matrix : _MatList) {
+		// 行列が残っていたらassert
+		assert(false);
+	}
+}
+
 
 void CModel::Unload()
 {
-	m_VertexBuffer->Release();
-	m_IndexBuffer->Release();
+	if (m_VertexBuffer) {
+		m_VertexBuffer->Release();
+	}
+	if (m_IndexBuffer) {
+		m_IndexBuffer->Release();
+	}
+	
 
 
 	delete[] m_SubsetArray;
@@ -621,4 +671,124 @@ void CModel::LoadMaterial( const char *FileName, MODEL_MATERIAL **MaterialArray,
 }
 
 
+
+void CModel::DrawChild(aiNode* pNode) {
+
+	aiMatrix4x4 matrix = pNode->mTransformation;	// 行列（位置）を取ってくる
+	XMMATRIX pushMat = XMMatrixSet(matrix.a1, matrix.a2, matrix.a3, matrix.a4,
+		matrix.b1, matrix.b2, matrix.b3, matrix.b4,
+		matrix.c1, matrix.c2, matrix.c3, matrix.c4,
+		matrix.d1, matrix.d2, matrix.d3, matrix.d4);
+	_MatList.push_back(pushMat);
+	
+	for (XMMATRIX matrix : _MatList) {
+		XMMATRIX world = XMMatrixIdentity();
+		world *= matrix;
+		CRenderer::SetWorldMatrix(&world);
+	}
+	
+
+	if (strcmp(pNode->mName.data, "Body") == 0) {
+		/*
+		glPushMatrix();
+		glRotatef(bodyFront, 0.0f, 1.0f, 0.0f);
+		*/
+	}
+
+
+
+	for (int n = 0; n < pNode->mNumMeshes; n++) {
+		const aiMesh* pMesh = g_pScene->mMeshes[pNode->mMeshes[n]];
+
+		const aiMaterial* mat = g_pScene->mMaterials[pMesh->mMaterialIndex];
+
+		MATERIAL material;
+		aiColor4D color;
+		aiGetMaterialColor(mat, AI_MATKEY_COLOR_DIFFUSE, &color);
+		material.Diffuse.r = color.r;
+		material.Diffuse.g = color.g;
+		material.Diffuse.b = color.b;
+		material.Diffuse.a = color.a;
+		aiGetMaterialColor(mat, AI_MATKEY_COLOR_AMBIENT, &color);
+		material.Ambient.r = color.r;
+		material.Ambient.g = color.g;
+		material.Ambient.b = color.b;
+		material.Ambient.a = color.a;
+		aiGetMaterialColor(mat, AI_MATKEY_COLOR_SPECULAR, &color);
+		material.Specular.r = color.r;
+		material.Specular.g = color.g;
+		material.Specular.b = color.b;
+		material.Specular.a = color.a;
+		aiGetMaterialColor(mat, AI_MATKEY_COLOR_EMISSIVE, &color);
+		material.Emission.r = color.r;
+		material.Emission.g = color.g;
+		material.Emission.b = color.b;
+		material.Emission.a = color.a;
+
+
+		// マテリアル設定
+		CRenderer::SetMaterial(material);
+
+		// テクスチャ設定
+		//CRenderer::SetTexture(m_SubsetArray[i].Material.Texture);
+
+		for (int fn = 0; fn < pMesh->mNumFaces; fn++) {
+			// メッシュの面の回数繰り返す
+			const aiFace* pFace = &pMesh->mFaces[fn];
+			for (int i = 0; i < pFace->mNumIndices; i++) {
+				VERTEX_3D* bufVertex = new VERTEX_3D[pFace->mNumIndices];
+				for (int n = 0; n < pFace->mNumIndices; n++) {
+					bufVertex[n].Diffuse.x = material.Diffuse.r;
+					bufVertex[n].Diffuse.y = material.Diffuse.g;
+					bufVertex[n].Diffuse.z = material.Diffuse.b;
+					bufVertex[n].Diffuse.w = material.Diffuse.a;
+					bufVertex[n].Normal.x = pMesh->mNormals[pFace->mIndices[n]].x;
+					bufVertex[n].Normal.y = pMesh->mNormals[pFace->mIndices[n]].y;
+					bufVertex[n].Normal.z = pMesh->mNormals[pFace->mIndices[n]].z;
+					bufVertex[n].Position.x = pMesh->mVertices[pFace->mIndices[n]].x;
+					bufVertex[n].Position.y = pMesh->mVertices[pFace->mIndices[n]].y;
+					bufVertex[n].Position.z = pMesh->mVertices[pFace->mIndices[n]].z;
+					if (pMesh->HasTextureCoords(0)) {
+						bufVertex[n].TexCoord.x = pMesh->mTextureCoords[0][pFace->mIndices[n]].x;
+						bufVertex[n].TexCoord.y = pMesh->mTextureCoords[0][pFace->mIndices[n]].y;
+					}
+					else {
+						bufVertex[n].TexCoord = XMFLOAT2(0.0f, 0.0f);
+					}
+
+				}
+				CRenderer::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+				CRenderer::GetDeviceContext()->Draw(pFace->mNumIndices, (UINT)bufVertex);
+
+			}
+		}
+
+	}
+
+
+	if (strcmp(pNode->mName.data, "Canon") == 0) {
+		/*
+		glPushMatrix();
+
+		glRotatef(g_Angle["Canon"], 0.0f, 0.0f, 1.0f);
+		*/
+	}
+
+
+	for (int i = 0; i < pNode->mNumChildren; i++) {
+		DrawChild(pNode->mChildren[i]);
+	}
+
+	if (strcmp(pNode->mName.data, "Canon") == 0) {
+		//glPopMatrix();
+	}
+
+	if (strcmp(pNode->mName.data, "Body") == 0) {
+		//glPopMatrix();
+	}
+
+
+	_MatList.pop_back();
+	//glPopMatrix();
+}
 

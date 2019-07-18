@@ -1,7 +1,9 @@
 #include "main.h"
 #include "renderer.h"
+#include "texture.h"
 #include <vector>
 #include <string>
+#include "GameObject.h"
 #include "Cource.h"
 #pragma comment(lib,"d3d11.lib")
 using namespace std;
@@ -17,6 +19,8 @@ typedef struct CourceVtx_Tag {
 	XMFLOAT2 texcoord;
 }CourceVtx;
 
+static CTexture* courceImg;
+
 
 Cource::Cource()
 {
@@ -29,6 +33,9 @@ Cource::~Cource()
 
 //　コースデータの読み込み及び、その他初期設定
 void Cource::Init(void) {
+	//　コース画像読み込み
+	courceImg = new CTexture;
+	courceImg->Load("asset/rainbow.png");
 	//　コースファイルの読み込み
 	//　コースデータはdistance,yaw,pitch,roll,radius,insline
 	FILE* fp;
@@ -55,6 +62,7 @@ void Cource::Init(void) {
 	//　コースデータから、中心座標及び四隅の頂点の位置を計算
 	XMFLOAT3 courceFront = { 0.0f,0.0f,1.0f };
 	XMFLOAT3 courceRight = { 1.0f,0.0f,0.0f };
+	XMFLOAT3 courceUp = { 0.0f,1.0f,0.0f };
 	XMMATRIX rotateMtx;
 	float deltaYaw = 0.0f;			//　ΔYaw（単位距離当たりどれくらい傾ける状態なのか（カーブ中など））
 	float deltaPitch = 0.0f;		//　deltaYawのPitch版
@@ -124,7 +132,7 @@ void Cource::Init(void) {
 					deltaYaw = 0.125f / radius;
 				}
 				if (incline == 0.0f) {
-					deltaRoll = 0.0f;
+					deltaPitch = 0.0f;
 				}
 				else {
 					deltaPitch = 0.125f / incline;
@@ -139,54 +147,102 @@ void Cource::Init(void) {
 			roll += deltaRoll;
 
 			rotateMtx = XMMatrixIdentity();
-			rotateMtx *= XMMatrixRotationRollPitchYaw(deltaRoll, deltaPitch, deltaYaw);
+			rotateMtx *= XMMatrixRotationRollPitchYaw(deltaPitch, deltaYaw, deltaRoll);
 			XMStoreFloat3(&courceFront , XMVector3TransformNormal(XMLoadFloat3(&courceFront), rotateMtx));
 			XMStoreFloat3(&courceRight, XMVector3TransformNormal(XMLoadFloat3(&courceRight), rotateMtx));
-			
+			XMStoreFloat3(&courceUp, XMVector3TransformNormal(XMLoadFloat3(&courceUp), rotateMtx));
 			courceData[i]->centerpos = courceData[i - 1]->centerpos + courceFront * 0.125f;
 			courceData[i]->vecFront = courceFront;
 		}
 
-		//	MFの各頂点座標	　　 =　　　中心ポジション     +/-　　　　　コース幅　　　　　　 +/-　　　　前後幅
-		courceData[i]->vtxpos[0] = courceData[i]->centerpos - (courceRight / 2) * COURCEWIDTH + (courceFront / 2) * 0.125f;
-		courceData[i]->vtxpos[1] = courceData[i]->centerpos + (courceRight / 2) * COURCEWIDTH + (courceFront / 2) * 0.125f;
-		courceData[i]->vtxpos[2] = courceData[i]->centerpos - (courceRight / 2) * COURCEWIDTH - (courceFront / 2) * 0.125f;
-		courceData[i]->vtxpos[3] = courceData[i]->centerpos + (courceRight / 2) * COURCEWIDTH - (courceFront / 2) * 0.125f;
+		//	MFの各頂点座標	　　		  =　　　中心ポジション     +/-　　　　　コース幅　　　　　　 +/-　　　　前後幅
+		courceData[i]->vertex[0].position = courceData[i]->centerpos - (courceRight / 2) * COURCEWIDTH + (courceFront / 2) * 0.125f;
+		courceData[i]->vertex[0].normal = courceUp;
+		courceData[i]->vertex[0].diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		courceData[i]->vertex[0].texcoord = XMFLOAT2(0.0f, 0.0f);
+		courceData[i]->vertex[1].position = courceData[i]->centerpos + (courceRight / 2) * COURCEWIDTH + (courceFront / 2) * 0.125f;
+		courceData[i]->vertex[1].normal = courceUp;
+		courceData[i]->vertex[1].diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		courceData[i]->vertex[1].texcoord = XMFLOAT2(1.0f, 0.0f);
+		courceData[i]->vertex[2].position = courceData[i]->centerpos - (courceRight / 2) * COURCEWIDTH - (courceFront / 2) * 0.125f;
+		courceData[i]->vertex[2].normal = courceUp;
+		courceData[i]->vertex[2].diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		courceData[i]->vertex[2].texcoord = XMFLOAT2(0.0f, 1.0f);
+		courceData[i]->vertex[3].position = courceData[i]->centerpos + (courceRight / 2) * COURCEWIDTH - (courceFront / 2) * 0.125f;
+		courceData[i]->vertex[3].normal = courceUp;
+		courceData[i]->vertex[3].diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		courceData[i]->vertex[3].texcoord = XMFLOAT2(1.0f, 1.0f);
+		courceData[i]->pitchyawroll.x = pitch;
+		courceData[i]->pitchyawroll.y = yaw;
+		courceData[i]->pitchyawroll.z = roll;
 	}
+	VERTEX* vertexdata = new VERTEX[(courceLength * 8) * 4];
+	for (int i = 0; i < (courceLength * 8); i++) {
+		vertexdata[4* i ] = courceData[i]->vertex[0];
+		vertexdata[4*i+1] = courceData[i]->vertex[1];
+		vertexdata[4*i+2] = courceData[i]->vertex[2];
+		vertexdata[4*i+3] = courceData[i]->vertex[3];
+	}
+	D3D11_BUFFER_DESC bd;
+	ZeroMemory(&bd, sizeof(bd));
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(VERTEX) * (courceLength * 8) * 4;
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;	//　頂点バッファ
+	bd.CPUAccessFlags = 0;
+	D3D11_SUBRESOURCE_DATA sd;
+	ZeroMemory(&sd, sizeof(sd));
+	sd.pSysMem = vertexdata;
+	CRenderer::GetDevice()->CreateBuffer(&bd, &sd, &vertexBuffer);
+	delete[] vertexdata;
+	WORD* index = new WORD[courceLength * 8 * 4];
+	for (int i = 0; i < courceLength * 8 * 4; i++) {
+		index[i] = i;
+	}
+	D3D11_BUFFER_DESC bd_vb;
+	ZeroMemory(&bd_vb, sizeof(bd_vb));
+	bd_vb.Usage = D3D11_USAGE_DEFAULT;
+	bd_vb.ByteWidth = sizeof(WORD) * courceLength * 8 * 4;
+	bd_vb.BindFlags = D3D11_BIND_INDEX_BUFFER;	//　インデックスバッファ
+	bd_vb.CPUAccessFlags = 0;
+	D3D11_SUBRESOURCE_DATA sd_vb;
+	ZeroMemory(&sd_vb, sizeof(sd_vb));
+	sd_vb.pSysMem = index;
+	CRenderer::GetDevice()->CreateBuffer(&bd_vb, &sd_vb, &indexBuffer);
+	delete[] index;
+	
 }
 
-void Cource::Draw(int currentPos) {
+void Cource::Draw(void) {
 	//　メッシュフィールドの描画
+	//int maxnum = max(0, currentPos * 8 - DRAWLENGTH);
+	//int minnum = min(courceLength * 8, currentPos * 8 + DRAWLENGTH);
 	
-	int maxnum = max(0, currentPos * 8 - DRAWLENGTH);
-	int minnum = min(courceLength * 8, currentPos * 8 + DRAWLENGTH);
-	for (int i = maxnum; i < minnum; i++) {
-		CourceVtx Vtx[4] = {
-			{ courceData[i]->vtxpos[0],XMFLOAT4(1.0f,1.0f,1.0f,0.75f),XMFLOAT2(0,0) },
-			{ courceData[i]->vtxpos[1],XMFLOAT4(1.0f,1.0f,1.0f,0.75f),XMFLOAT2(1,0) },
-			{ courceData[i]->vtxpos[2],XMFLOAT4(1.0f,1.0f,1.0f,0.75f),XMFLOAT2(0,1) },
-			{ courceData[i]->vtxpos[3],XMFLOAT4(1.0f,1.0f,1.0f,0.75f),XMFLOAT2(1,1) },
-		};
-		XMMATRIX worldMtx;
-		worldMtx = XMMatrixScaling(1.0f, 1.0f, 1.0f);
-		worldMtx *= XMMatrixRotationRollPitchYaw(0.0f, 0.0f, 0.0f);
-		worldMtx *= XMMatrixTranslation(0.0f, 0.0f, 0.0f);
-		CRenderer::SetWorldMatrix(&worldMtx);
+	XMMATRIX worldMtx;
+	worldMtx = XMMatrixScaling(1.0f, 1.0f, 1.0f);
+	worldMtx *= XMMatrixRotationRollPitchYaw(0.0f, 0.0f, 0.0f);
+	//worldMtx *= XMMatrixTranslation(0.0f, 2.0f, 0.0f);
+	CRenderer::SetWorldMatrix(&worldMtx);
 
-		
-		CRenderer::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-		CRenderer::GetDeviceContext()->Draw(2, 0);
-
-	}
-
+	
+	UINT stride = sizeof(VERTEX);
+	UINT offset = 0;
+	CRenderer::GetDeviceContext()->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+	CRenderer::GetDeviceContext()->IASetIndexBuffer(&indexBuffer[0], DXGI_FORMAT_R16_UINT, 0);
+	CRenderer::SetTexture(courceImg);
+	CRenderer::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	CRenderer::GetDeviceContext()->DrawIndexed((courceLength * 8 * 4), 0, 0);
+	
 }
 
 void Cource::Uninit(void) {
 	//　コースファイルの削除（リリース）
+	indexBuffer->Release();
+	vertexBuffer->Release();
 	for (int i = 0; i < courceLength * 8; i++) {
 		delete courceData[i];
 	}
 	delete courceData;
+	delete courceImg;
 }
 
 XMFLOAT3 Cource::GetCource(float distance) {
@@ -206,20 +262,51 @@ XMFLOAT3 Cource::GetCource(float distance) {
 
 }
 
-XMFLOAT3 Cource::GetTild(float distance) {
+XMVECTOR Cource::GetTild(float distance) {
 	float bufDis = distance;
 	bufDis *= 8;
 	int bufInt = bufDis;
 	if (bufInt - bufDis == 0) {
-		return courceData[bufInt]->vecFront;
+		XMFLOAT3 frontBuf = courceData[bufInt]->vecFront;
+			return XMLoadFloat3(&frontBuf);
 	}
 	else {
-		float a = distance - (bufInt / 8);
-		float b = ((bufInt + 1) / 8) - distance;
+		float a = distance - (bufDis / 8);
+		float b = ((bufDis + 1) / 8) - distance;
+		/*
 		XMFLOAT3 currentFront;
 		currentFront = ((a / (a + b)) * courceData[bufInt]->vecFront + (b / (a + b)) * courceData[bufInt + 1]->vecFront);
 		XMStoreFloat3(&currentFront , XMVector3Normalize(XMLoadFloat3(&currentFront)));
-		
+		*/
+		XMVECTOR currentFront;
+		XMFLOAT3 frontBuf = ((a / (a + b)) * courceData[bufInt]->vecFront + (b / (a + b)) * courceData[bufInt + 1]->vecFront);
+		currentFront = XMLoadFloat3(&frontBuf);
+
 		return currentFront;
 	}
 }
+
+XMFLOAT3 Cource::GetPitchYawRoll(float distance)
+{
+	float bufDis = distance;
+	bufDis *= 8;
+	int bufInt = bufDis;
+	if (bufInt - bufDis == 0) {
+		XMFLOAT3 ret = courceData[bufInt]->pitchyawroll;
+		return ret;
+	}
+	else {
+		float a = distance - (bufDis / 8);
+		float b = ((bufDis + 1) / 8) - distance;
+		/*
+		XMFLOAT3 currentFront;
+		currentFront = ((a / (a + b)) * courceData[bufInt]->vecFront + (b / (a + b)) * courceData[bufInt + 1]->vecFront);
+		XMStoreFloat3(&currentFront , XMVector3Normalize(XMLoadFloat3(&currentFront)));
+		*/
+		
+		XMFLOAT3 ret = ((a / (a + b)) * courceData[bufInt]->pitchyawroll + (b / (a + b)) * courceData[bufInt + 1]->pitchyawroll);
+		
+		return ret;
+	}
+}
+

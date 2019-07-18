@@ -88,7 +88,8 @@ void main( in  float4 inPosition		: POSITION0,
 
 	outDiffuse = inDiffuse * Material.Diffuse * light * Light.Diffuse;
 	outDiffuse += inDiffuse * Material.Ambient * Light.Ambient;
-	outDiffuse.a = 1.0;
+	//outDiffuse.a = 1.0;
+	outDiffuse.a = inDiffuse.a * Material.Diffuse.a;
 
 }
 

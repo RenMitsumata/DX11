@@ -19,14 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="audio_clip.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CBullet.cpp" />
     <ClCompile Include="CColBox.cpp" />
     <ClCompile Include="CCollision.cpp" />
     <ClCompile Include="CColSphere.cpp" />
+    <ClCompile Include="CGame.cpp" />
     <ClCompile Include="Cource.cpp" />
     <ClCompile Include="CPlayer.cpp" />
+    <ClCompile Include="CResult.cpp" />
     <ClCompile Include="CShadow.cpp" />
+    <ClCompile Include="CTitle.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Field.cpp" />
     <ClCompile Include="GameObject.cpp" />
@@ -39,14 +43,18 @@
     <ClCompile Include="texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="audio_clip.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="CBullet.h" />
     <ClInclude Include="CColBox.h" />
     <ClInclude Include="CCollision.h" />
     <ClInclude Include="CColSphere.h" />
+    <ClInclude Include="CGame.h" />
     <ClInclude Include="Cource.h" />
     <ClInclude Include="CPlayer.h" />
+    <ClInclude Include="CResult.h" />
     <ClInclude Include="CShadow.h" />
+    <ClInclude Include="CTitle.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Field.h" />
     <ClInclude Include="GameObject.h" />

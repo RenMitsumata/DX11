@@ -1,20 +1,20 @@
 #pragma once
 
+
 #include <list>
 #include <vector>
+#include <typeinfo>
 #include "main.h"
 #include "renderer.h"
 #include "texture.h"
 #include "GameObject.h"
-
 #include "CCollision.h"
 #include "CPlayer.h"
 #include "Enemy.h"
 #include "camera.h"
-#include "CBullet.h"
 #include "Field.h"
 #include "polygon.h"
-
+#include "Cource.h"
 
 class CScene
 {
@@ -22,6 +22,7 @@ protected:
 	std::list<CGameObject*> _Objectlist[5];
 	std::list<CCollision*> _Collisionlist;
 public:
+	
 	template<typename T>
 	T* AddGameObject(int layer) {
 		T* object = new T();
@@ -36,43 +37,34 @@ public:
 		_Collisionlist.push_back(collision);
 		return collision;
 	}
-	/*
+	
 	template<typename T>
 	T* GetGameObject(int Layer) {
-		for(CGameObject* object : _Objectlist(Layer)) {
+		for(CGameObject* object : _Objectlist[Layer]) {
 			if (typeid(*object) == typeid(T)) {
 				return (T*)object;
 			}
 		}
 	}
-	*/
-	/*
+	
+	
 	template<typename T>
 	std::vector<T*> GetGameObjects(int Layer) {
 		std::vector<T*> objects;
-		for (CGameObject* object : _Objectlist(Layer)) {
+		for (CGameObject* object : _Objectlist[Layer]) {
 			if (typeid(*object) == typeid(T)) {
 				objects.push_back((T*)object);
 			}
 		}
 		return objects;
 	}
-	*/
+	
 	CScene() {}
 	virtual ~CScene() {}
-
-	virtual void Init(void) {
-		
-		AddGameObject<CCamera>(0);
-		AddGameObject<CField>(1);
-		AddGameObject<CPlayer>(2);
-		AddGameObject<CEnemy>(2);
-		AddGameObject<CEnemy>(2);
-		AddGameObject<CEnemy>(2);
-		AddGameObject<CPolygon>(4);
-		
-	}
+	virtual void Init(void) = 0;
+	
 	virtual void Uninit(void) {
+		
 		for (CCollision* col : _Collisionlist) {
 			delete col;
 		}
@@ -125,7 +117,9 @@ public:
 		for (int i = 0; i < 5; i++) {
 			for (CGameObject* object : _Objectlist[i]) {
 				object->Draw();
+				
 			}
+			
 		}
 	}
 

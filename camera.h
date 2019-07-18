@@ -25,7 +25,8 @@ public:
 	void Init();
 	void Uninit();
 	void Update();
+	void Update(XMFLOAT3 newPos);
+	void Update(XMFLOAT3 newPos,XMVECTOR frontVec,XMVECTOR upVec);
 	void Draw();
-
 
 };

@@ -20,3 +20,8 @@ using namespace DirectX;
 
 HWND GetWindow();
 
+XMFLOAT3 operator + (XMFLOAT3 a, XMFLOAT3 b);
+XMFLOAT3 operator - (XMFLOAT3 a, XMFLOAT3 b);
+XMFLOAT3 operator * (XMFLOAT3 a, float b);
+XMFLOAT3 operator * (float a, XMFLOAT3 b);
+XMFLOAT3 operator / (XMFLOAT3 a, float b);

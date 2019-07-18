@@ -1,20 +1,23 @@
 #include "main.h"
 #include "renderer.h"
 #include "input.h"
-#include "Scene.h"
+#include "CTitle.h"
+#include "CResult.h"
+
+#include "CGame.h"
+#include "audio_clip.h"
 #include "manager.h"
+#include "Scene.h"
 
-
-
+CScene* CManager::m_Scene = nullptr;
 static CInput* g_Input;
-static CScene* g_Scene;
 
 void CManager::Init()
 {
 
 	CRenderer::Init();
-	g_Scene = new CScene;
-	g_Scene->Init();
+	CAudioClip::Init();
+	SetScene<CTitle>();
 	g_Input = new CInput;
 	g_Input->Init();
 }
@@ -23,16 +26,16 @@ void CManager::Uninit()
 {
 	g_Input->Uninit();
 	delete g_Input;
-	g_Scene->Uninit();
-	delete g_Scene;
-
+	m_Scene->Uninit();
+	delete m_Scene;
+	CAudioClip::Uninit();
 	CRenderer::Uninit();
 	
 }
 
 void CManager::Update()
 {
-	g_Scene->Update();
+	m_Scene->Update();
 	g_Input->Update();
 }
 
@@ -40,7 +43,7 @@ void CManager::Draw()
 {
 
 	CRenderer::Begin();
-	g_Scene->Draw();
+	m_Scene->Draw();
 
 	CRenderer::End();
 
@@ -48,5 +51,5 @@ void CManager::Draw()
 
 CScene * CManager::GetScene()
 {
-	return g_Scene;
+	return m_Scene;
 }

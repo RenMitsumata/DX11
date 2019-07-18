@@ -29,7 +29,18 @@ struct COLOR
 	float g;
 	float b;
 	float a;
+
+	COLOR operator = (XMFLOAT4 color) {
+		this->r = color.x;
+		this->g = color.y;
+		this->b = color.z;
+		this->a = color.w;
+		return* this;
+	}
+	
 };
+
+
 
 // マテリアル構造体
 struct MATERIAL

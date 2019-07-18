@@ -38,8 +38,7 @@ void CPolygon::Init()
 	ZeroMemory(&sd, sizeof(sd));
 	sd.pSysMem = vertex;
 	CRenderer::GetDevice()->CreateBuffer(&bd, &sd, &m_VertexBuffer);
-	m_Texture = new CTexture;
-	m_Texture->Load("asset/wall.tga");
+	
 	
 	mtx = XMMatrixIdentity();
 	offsetPos = XMMatrixTranslation(0, 100, 0);
@@ -73,4 +72,14 @@ void CPolygon::Draw()
 	CRenderer::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	CRenderer::GetDeviceContext()->Draw(4, 0);
 
+}
+
+void CPolygon::Set(const char * filename)
+{
+	if (m_Texture != NULL) {
+		m_Texture->Unload();
+		delete m_Texture;
+	}
+	m_Texture = new CTexture;
+	m_Texture->Load(filename);
 }

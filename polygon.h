@@ -12,5 +12,6 @@ public:
 	void Uninit();
 	void Update();
 	void Draw();
+	void Set(const char* filename);
 };
 

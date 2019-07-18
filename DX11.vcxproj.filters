@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="ソース ファイル\Scenes">
+      <UniqueIdentifier>{df366563-b997-4f1a-8a55-5e097ef90fb6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Collisions">
+      <UniqueIdentifier>{e5dee49f-9c8e-415f-87a0-35c3b84a561a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Collisions">
+      <UniqueIdentifier>{444eca18-3e0d-4263-bb0e-c545b5e7693b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Scenes">
+      <UniqueIdentifier>{0860410e-0e1b-48f7-8a63-17789c66a350}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp">
@@ -57,16 +69,28 @@
     <ClCompile Include="CBullet.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="CCollision.cpp">
+    <ClCompile Include="Cource.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="CColSphere.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="CGame.cpp">
+      <Filter>ソース ファイル\Scenes</Filter>
     </ClCompile>
     <ClCompile Include="CColBox.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Collisions</Filter>
     </ClCompile>
-    <ClCompile Include="Cource.cpp">
+    <ClCompile Include="CCollision.cpp">
+      <Filter>ソース ファイル\Collisions</Filter>
+    </ClCompile>
+    <ClCompile Include="CColSphere.cpp">
+      <Filter>ソース ファイル\Collisions</Filter>
+    </ClCompile>
+    <ClCompile Include="CTitle.cpp">
+      <Filter>ソース ファイル\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="CResult.cpp">
+      <Filter>ソース ファイル\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="audio_clip.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -101,9 +125,6 @@
     <ClInclude Include="GameObject.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="CPlayer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -116,16 +137,31 @@
     <ClInclude Include="CBullet.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="CCollision.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="CColSphere.h">
+    <ClInclude Include="Cource.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="CColBox.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Collisions</Filter>
     </ClInclude>
-    <ClInclude Include="Cource.h">
+    <ClInclude Include="CCollision.h">
+      <Filter>ヘッダー ファイル\Collisions</Filter>
+    </ClInclude>
+    <ClInclude Include="CColSphere.h">
+      <Filter>ヘッダー ファイル\Collisions</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>ヘッダー ファイル\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="CGame.h">
+      <Filter>ヘッダー ファイル\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="CTitle.h">
+      <Filter>ヘッダー ファイル\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="CResult.h">
+      <Filter>ヘッダー ファイル\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="audio_clip.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

@@ -29,7 +29,8 @@ struct MODEL
 	unsigned short	SubsetNum;
 };
 
-
+//Å@ëOï˚êÈåæ
+class aiNode;
 
 class CModel
 {
@@ -47,7 +48,7 @@ private:
 
 	void LoadObj( const char *FileName, MODEL *Model );
 	void LoadMaterial( const char *FileName, MODEL_MATERIAL **MaterialArray, unsigned short *MaterialNum );
-
+	void DrawChild(aiNode* pNode);
 public:
 	void Init();
 	void Init(const char * filename);
@@ -57,8 +58,12 @@ public:
 	void Update(XMFLOAT3 deltaPos);
 	void Draw();
 	void Draw(XMFLOAT3 m_Position);
-	void Draw(XMFLOAT3 m_Position, XMVECTOR m_vecRotation);
+	void Draw(XMFLOAT3 m_Position, XMFLOAT3 pitchyawroll, unsigned int e_FILETYPE);
 	void Load( const char *FileName );
+	void LoadFBX(const char* filename);
 	void Unload();
-
+	enum e_FILETYPE {
+		e_FILEOBJ = 0,
+		e_FILEFBX
+	};
 };
