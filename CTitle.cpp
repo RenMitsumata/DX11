@@ -1,5 +1,6 @@
 
 #include "manager.h"
+#include "CFade.h"
 #include "Scene.h"
 #include "input.h"
 #include "CGame.h"
@@ -24,8 +25,15 @@ void CTitle::Init(void)
 
 void CTitle::Update(void)
 {
+	
 	if (CInput::GetKeyTrigger(VK_RETURN)) {
+		CFade::Set();
+		isChange = true;
+	}
+	if (isChange && !CFade::Get()) {
 		CManager::SetScene<CGame>();
 	}
+	
+	
 }
 

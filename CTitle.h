@@ -5,6 +5,7 @@ class CTitle :
 {
 private:
 	CPolygon* title = NULL;
+	bool isChange = false;
 public:
 	CTitle();
 	virtual ~CTitle();

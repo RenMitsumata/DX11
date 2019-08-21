@@ -58,7 +58,7 @@ public:
 	void Update(XMFLOAT3 deltaPos);
 	void Draw();
 	void Draw(XMFLOAT3 m_Position);
-	void Draw(XMFLOAT3 m_Position, XMFLOAT3 pitchyawroll, unsigned int e_FILETYPE);
+	void Draw(XMMATRIX* transform, unsigned int e_FILETYPE);
 	void Load( const char *FileName );
 	void LoadFBX(const char* filename);
 	void Unload();

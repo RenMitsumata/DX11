@@ -1,9 +1,10 @@
 #include "main.h"
 #include "renderer.h"
+#include "texture.h"
 #include "input.h"
 #include "CTitle.h"
 #include "CResult.h"
-
+#include "CFade.h"
 #include "CGame.h"
 #include "audio_clip.h"
 #include "manager.h"
@@ -20,10 +21,12 @@ void CManager::Init()
 	SetScene<CTitle>();
 	g_Input = new CInput;
 	g_Input->Init();
+	CFade::Init();
 }
 
 void CManager::Uninit()
 {
+	CFade::Uninit();
 	g_Input->Uninit();
 	delete g_Input;
 	m_Scene->Uninit();
@@ -37,6 +40,9 @@ void CManager::Update()
 {
 	m_Scene->Update();
 	g_Input->Update();
+	
+	CFade::Update();
+
 }
 
 void CManager::Draw()
@@ -44,7 +50,7 @@ void CManager::Draw()
 
 	CRenderer::Begin();
 	m_Scene->Draw();
-
+	CFade::Draw();
 	CRenderer::End();
 
 }

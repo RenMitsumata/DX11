@@ -9,10 +9,11 @@ private:
 	CModel* m_Model;
 	CColSphere* m_Collision;
 	XMFLOAT3 m_Position;
+	XMFLOAT3 m_Velocity;
 	CGameObject* owner;
 public:
 	CBullet();
-	CBullet(CGameObject* owner,XMFLOAT3 pos);
+	CBullet(CGameObject* owner,XMFLOAT3 pos, XMFLOAT3 velocity);
 	virtual ~CBullet();
 	void Init(void);
 	void Uninit(void);

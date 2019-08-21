@@ -14,9 +14,10 @@ CBullet::CBullet()
 {
 }
 
-CBullet::CBullet(CGameObject* owner,XMFLOAT3 pos)
+CBullet::CBullet(CGameObject* owner,XMFLOAT3 pos, XMFLOAT3 velocity)
 {
 	this->owner = owner;
+	m_Velocity = velocity;
 	m_Position = pos;
 	m_Destroy = false;
 }
@@ -45,13 +46,10 @@ void CBullet::Uninit(void)
 void CBullet::Update(void)
 {
 	XMFLOAT3 delta;
-	delta.z = 0.1f;
-	delta.y = 0.00f;
-	delta.x = 0.00f;
-	m_Position.x += delta.x;
-	m_Position.y += delta.y;
-	m_Position.z += delta.z;
-	m_Model->Update(delta);
+	m_Position.x += m_Velocity.x;
+	m_Position.y += m_Velocity.y;
+	m_Position.z += m_Velocity.z;
+	m_Model->Update(m_Velocity);
 	
 }
 

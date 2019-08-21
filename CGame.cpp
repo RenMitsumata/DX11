@@ -1,4 +1,5 @@
 #include "manager.h"
+#include "CFade.h"
 #include "Scene.h"
 #include "input.h"
 #include "CResult.h"
@@ -21,13 +22,13 @@ void CGame::Init(void)
 	AddGameObject<Cource>(1);
 	AddGameObject<CField>(1);
 	AddGameObject<CPlayer>(2);
-	AddGameObject<CEnemy>(2);
-	AddGameObject<CEnemy>(2);
-	AddGameObject<CEnemy>(2);
+	for (int i = 0; i < 200; i++) {
+		AddGameObject<CEnemy>(2);
+	}
 	//AddGameObject<CPolygon>(4);
-	
-	m_BGM = new CAudioClip;
-	m_BGM->Load("sound/Swan Lake.wav");
+	CFade::Set();
+	//m_BGM = new CAudioClip;
+	//m_BGM->Load("sound/Swan Lake.wav");
 	//m_BGM->Play(true);
 	
 }
@@ -35,8 +36,8 @@ void CGame::Init(void)
 void CGame::Uninit(void)
 {
 	CScene::Uninit();
-	m_BGM->Stop();
-	m_BGM->Unload();
+	//m_BGM->Stop();
+	//m_BGM->Unload();
 	delete m_BGM;
 }
 

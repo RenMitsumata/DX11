@@ -22,7 +22,7 @@ void CPolygon::Init()
 {
 	VERTEX_3D vertex[4];
 	for (int i = 0; i < 4; i++) {
-		vertex[i].Position = XMFLOAT3(0 + (i % 2)*SCREEN_WIDTH, -100 + (i / 2)*SCREEN_HEIGHT, 0);
+		vertex[i].Position = XMFLOAT3((i % 2)*SCREEN_WIDTH, (i / 2)*SCREEN_HEIGHT, 0);
 		vertex[i].Normal = XMFLOAT3(0.0f, 1.0f, 0.0f);
 		vertex[i].Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 		vertex[i].TexCoord = XMFLOAT2(i % 2, i / 2);
@@ -41,8 +41,8 @@ void CPolygon::Init()
 	
 	
 	mtx = XMMatrixIdentity();
-	offsetPos = XMMatrixTranslation(0, 100, 0);
-	mtx = offsetPos * mtx;
+	
+	
 
 }
 

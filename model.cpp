@@ -30,6 +30,7 @@ void CModel::Init()
 }
 
 void CModel::Init(const char* filename) {
+	/*
 	m_Position = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	m_Rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
@@ -58,11 +59,35 @@ void CModel::Init(const char* filename) {
 		}
 	}
 	
+	*/
+	m_Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_Rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	g_pScene = aiImportFile(filename, aiProcessPreset_TargetRealtime_Quality);
+	if (g_pScene == nullptr) {
+		MessageBox(NULL, "モデルファイルが読み込めません", "Assimp", MB_OK | MB_ICONHAND);
+		exit(1);
+	}
+	int material = g_pScene->mNumMaterials;
+	g_Texture = new unsigned int[material];
+	for (int i = 0; i < material; i++) {
+		aiString path;
 
 
-	
-	
+		g_pScene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, 0, &path);
+		// マテリアルに画像がある
+		std::string texPath = path.data;
+		size_t pos = texPath.find_last_of("\\/");
+		std::string headerPath = texPath.substr(0, pos + 1);
+		headerPath += path.data;
+		texPath.c_str();	// stringの先頭アドレスを取得できる
+		texture[i] = LoadTexture(headerPath.c_str(), 2);
+	}
+
+
+
 	Load(filename);
+	
 }
 
 void CModel::Init(const char * filename, XMFLOAT3 pos)
@@ -157,16 +182,12 @@ void CModel::Draw(XMFLOAT3 m_Position)
 	}
 }
 
-void CModel::Draw(XMFLOAT3 m_Position, XMFLOAT3 pitchyawroll, unsigned int e_FILETYPE) {
+void CModel::Draw(XMMATRIX* transform, unsigned int e_FILETYPE) {
 	switch (e_FILETYPE) {
 	case e_FILEOBJ:
 		// マトリクス設定
-		XMMATRIX world;
-		world = XMMatrixIdentity();
-
-		world *= XMMatrixRotationRollPitchYaw(pitchyawroll.x, pitchyawroll.y, pitchyawroll.z);
-		world *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
-		CRenderer::SetWorldMatrix(&world);
+		
+		CRenderer::SetWorldMatrix(transform);
 
 		// 頂点バッファ設定
 		CRenderer::SetVertexBuffers(m_VertexBuffer);
@@ -187,30 +208,26 @@ void CModel::Draw(XMFLOAT3 m_Position, XMFLOAT3 pitchyawroll, unsigned int e_FIL
 		}
 
 		break;
-
 	case e_FILEFBX:
 		
 		aiNode* pNode = g_pScene->mRootNode;
 		
-		world = XMMatrixIdentity();
 
-		world *= XMMatrixRotationRollPitchYaw(pitchyawroll.x, pitchyawroll.y, pitchyawroll.z);
-		world *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
-
-
-		_MatList.push_back(world);
-
+		_MatList.push_back(*transform);
+		
 		for (int i = 0; i < pNode->mNumChildren; i++) {
 			DrawChild(pNode->mChildren[i]);
 		}
-
+		
 		_MatList.pop_back();
+		
 		for (XMMATRIX matrix : _MatList) {
 			// 行列が残っていたらassert
 			assert(false);
 		}
+		
 		break;
-
+		
 	}
 	
 }
@@ -680,13 +697,12 @@ void CModel::DrawChild(aiNode* pNode) {
 		matrix.c1, matrix.c2, matrix.c3, matrix.c4,
 		matrix.d1, matrix.d2, matrix.d3, matrix.d4);
 	_MatList.push_back(pushMat);
-	
-	for (XMMATRIX matrix : _MatList) {
-		XMMATRIX world = XMMatrixIdentity();
+	XMMATRIX world = XMMatrixIdentity();
+
+	for (XMMATRIX matrix : _MatList) {		
 		world *= matrix;
-		CRenderer::SetWorldMatrix(&world);
 	}
-	
+	CRenderer::SetWorldMatrix(&world);
 
 	if (strcmp(pNode->mName.data, "Body") == 0) {
 		/*
@@ -759,7 +775,7 @@ void CModel::DrawChild(aiNode* pNode) {
 				}
 				CRenderer::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 				CRenderer::GetDeviceContext()->Draw(pFace->mNumIndices, (UINT)bufVertex);
-
+				delete bufVertex;
 			}
 		}
 
