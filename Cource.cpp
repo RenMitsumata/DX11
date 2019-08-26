@@ -222,7 +222,7 @@ void Cource::Draw(void) {
 	worldMtx *= XMMatrixRotationRollPitchYaw(0.0f, 0.0f, 0.0f);
 	//worldMtx *= XMMatrixTranslation(0.0f, 2.0f, 0.0f);
 	CRenderer::SetWorldMatrix(&worldMtx);
-
+	CRenderer::SetDepthEnable(true);
 	
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
@@ -231,6 +231,7 @@ void Cource::Draw(void) {
 	CRenderer::SetTexture(courceImg);
 	CRenderer::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	CRenderer::GetDeviceContext()->DrawIndexed((courceLength * 8 * 4), 0, 0);
+	CRenderer::SetDepthEnable(false);
 	
 }
 

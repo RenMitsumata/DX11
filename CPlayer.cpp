@@ -14,6 +14,7 @@
 #include "CShadow.h"
 #include "Field.h"
 #include "input.h"
+#include "SkyDome.h"
 #include <list>
 #include "CPlayer.h"
 
@@ -39,6 +40,9 @@ void CPlayer::Init(void)
 	//m_Model->Init();
 	m_Model->Init("asset/coaster.fbx");
 	m_Shadow->Init();
+	skydome = CManager::GetScene()->AddGameObject<SkyDome>(1);
+	skydome->Init(50.0f);
+	//playerUI = CManager::GetScene()->AddGameObject<CPolygon>(4);
 	distance = 0.0f;
 }
 
@@ -77,7 +81,11 @@ void CPlayer::Update(void)
 	distance += 0.25f;
 	pCource = CManager::GetScene()->GetGameObject<Cource>(1);
 	m_Position = pCource->GetCource(distance);
-
+	XMFLOAT3 upFor;
+	XMStoreFloat3(&upFor,up);
+	m_Position.x += upFor.x;
+	m_Position.y += upFor.y;
+	m_Position.z += upFor.z;
 	
 	XMVECTOR curFront = pCource->GetTild(distance);
 	XMMATRIX curMat = XMMatrixIdentity();
@@ -103,7 +111,7 @@ void CPlayer::Update(void)
 
 
 		XMFLOAT3 calcPos;
-		XMStoreFloat3(&calcPos, vectorFront + front + up);
+		XMStoreFloat3(&calcPos, vectorFront + front * 2 + up);
 		CBullet* bullet = new CBullet(this, m_Position + calcPos, velocity * 2.0f);	// m_Position‚É‘å–C‚Ìƒtƒƒ“ƒg‚ð‘«‚·
 		bullet->Init();
 		_Bulletlist.push_back(bullet);
@@ -142,5 +150,7 @@ void CPlayer::Draw(void)
 	transform *= XMMatrixRotationRollPitchYaw(YPR.x, YPR.y, YPR.z);
 	transform *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
 	m_Model->Draw(0,m_Position ,YPR, m_Rotation.x);
+
+	
 }
 

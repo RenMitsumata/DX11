@@ -7,6 +7,8 @@ class CShadow;
 class CCamera;
 class CBullet;
 class Cource;
+class SkyDome;
+class CPolygon;
 
 class CPlayer :	public CGameObject
 {
@@ -15,6 +17,8 @@ private:
 	CShadow* m_Shadow = NULL;
 	CCamera* m_Camera = NULL;
 	Cource* pCource = NULL;
+	SkyDome* skydome = NULL;
+	CPolygon* playerUI = NULL;
 	XMVECTOR front;
 	XMVECTOR up;
 	float distance;

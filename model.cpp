@@ -348,7 +348,7 @@ void CModel::Draw(unsigned int mgtNum, XMFLOAT3 rootPos, XMFLOAT3 yawpitchroll, 
 	DrawChild(pCurrentNode,canonAngle);
 	_MatList.pop_back();
 	Cnt = 0;
-	//CRenderer::SetDepthEnable(false);
+	
 }
 
 void CModel::DrawChild(aiNode* pCurrentNode, float canonAngle) {

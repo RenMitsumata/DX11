@@ -14,6 +14,7 @@
 #include "camera.h"
 #include "Field.h"
 #include "polygon.h"
+#include "SkyDome.h"
 #include "Cource.h"
 
 class CScene

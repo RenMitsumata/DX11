@@ -41,6 +41,7 @@
     <ClCompile Include="model.cpp" />
     <ClCompile Include="polygon.cpp" />
     <ClCompile Include="renderer.cpp" />
+    <ClCompile Include="SkyDome.cpp" />
     <ClCompile Include="texture.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -67,6 +68,7 @@
     <ClInclude Include="polygon.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="SkyDome.h" />
     <ClInclude Include="texture.h" />
   </ItemGroup>
   <ItemGroup>
