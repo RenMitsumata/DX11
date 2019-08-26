@@ -25,6 +25,7 @@ void CGame::Init(void)
 	for (int i = 0; i < 200; i++) {
 		AddGameObject<CEnemy>(2);
 	}
+	
 	//AddGameObject<CPolygon>(4);
 	CFade::Set();
 	//m_BGM = new CAudioClip;

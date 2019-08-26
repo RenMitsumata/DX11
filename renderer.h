@@ -6,10 +6,10 @@
 // ’¸“_\‘¢‘Ì
 struct VERTEX_3D
 {
-    XMFLOAT3 Position;
-    XMFLOAT3 Normal;
-    XMFLOAT4 Diffuse;
-    XMFLOAT2 TexCoord;
+	XMFLOAT3 Position;
+	XMFLOAT3 Normal;
+	XMFLOAT4 Diffuse;
+	XMFLOAT2 TexCoord;
 };
 
 
@@ -37,6 +37,8 @@ struct COLOR
 		this->a = color.w;
 		return* this;
 	}
+
+
 	
 };
 

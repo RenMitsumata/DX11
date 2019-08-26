@@ -5,7 +5,7 @@
 Cource Length:
 2000
 
-100 Curve:100,100,0
+100 Curve:100,100,1000
 300 CurveEnd:
 550 Curve:200,-200,0
 700 CurveEnd:

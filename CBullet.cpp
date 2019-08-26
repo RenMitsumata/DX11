@@ -22,6 +22,8 @@ CBullet::CBullet(CGameObject* owner,XMFLOAT3 pos, XMFLOAT3 velocity)
 	m_Destroy = false;
 }
 
+
+
 CBullet::~CBullet()
 {
 }

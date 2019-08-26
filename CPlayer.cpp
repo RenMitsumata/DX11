@@ -60,20 +60,8 @@ void CPlayer::Update(void)
 	frontPos = frontPos * (-6.0f) + upPos * 2.0f;
 	frontPos = m_Position + frontPos;
 	m_Camera->Update(frontPos,front,up);
-	if (CInput::GetKeyTrigger(VK_SPACE)) {
-		XMFLOAT3 velocity;
-		XMStoreFloat3(&velocity,front);
-		CBullet* bullet = new CBullet(this,m_Position,velocity * 2.0f);
-		bullet->Init();
-		_Bulletlist.push_back(bullet);
-		
-	}
-	for (CBullet* bullet : _Bulletlist) {
-		bullet->Update();
-	}
-	_Bulletlist.remove_if([](CBullet* bullet) {
-		return bullet->isDestroy();
-	});
+	
+	
 	
 	
 	
@@ -96,12 +84,37 @@ void CPlayer::Update(void)
 	curMat = XMMatrixRotationY(m_Rotation.x);
 	curFront = XMVector3TransformNormal(curFront, curMat);
 	front = curFront;
+	for (CBullet* bullet : _Bulletlist) {
+		bullet->Update();
+	}
+	_Bulletlist.remove_if([](CBullet* bullet) {
+		return bullet->isDestroy();
+	});
 
+	if (CInput::GetKeyTrigger(VK_SPACE)) {
+		XMFLOAT3 velocity;
+		XMStoreFloat3(&velocity, front);
+		// ‹@‘Ì‚Ì³–Ê‚ðŽ‚Á‚Ä‚«‚½‚¢
+		XMVECTOR vectorFront = { 0.0f,0.0f,1.0f };
+		XMMATRIX matFront = XMMatrixIdentity();
+		XMFLOAT3 YPR = pCource->GetPitchYawRoll(distance);
+		matFront *= XMMatrixRotationRollPitchYaw(YPR.x, YPR.y, YPR.z);
+		XMVector3TransformNormal(vectorFront, matFront);
+
+
+		XMFLOAT3 calcPos;
+		XMStoreFloat3(&calcPos, vectorFront + front + up);
+		CBullet* bullet = new CBullet(this, m_Position + calcPos, velocity * 2.0f);	// m_Position‚É‘å–C‚Ìƒtƒƒ“ƒg‚ð‘«‚·
+		bullet->Init();
+		_Bulletlist.push_back(bullet);
+
+	}
+	
 
 	//front = pCource->GetTild(distance);
 	//float newPosY = CField::GetHeight(m_Position);
 	//XMFLOAT4 newPosY = CField::GetNormal(&m_Position);
-	m_Position.y += 0.5f;
+	//m_Position.y += 0.5f;
 	
 	
 }
@@ -128,7 +141,6 @@ void CPlayer::Draw(void)
 	XMFLOAT3 YPR = pCource->GetPitchYawRoll(distance);
 	transform *= XMMatrixRotationRollPitchYaw(YPR.x, YPR.y, YPR.z);
 	transform *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
-
-	m_Model->Draw(&transform,CModel::e_FILEFBX);
+	m_Model->Draw(0,m_Position ,YPR, m_Rotation.x);
 }
 

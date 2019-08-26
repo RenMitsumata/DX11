@@ -47,32 +47,32 @@ void CCamera::Update()
 {
 	
 	if (CInput::GetKeyPress(VK_UP)) {
-		 XMVECTOR delta = XMVector3Normalize(at - eye) * 0.2f;
+		 XMVECTOR delta = XMVector3Normalize(at - eye) * 0.5f;
 		 eye += delta;
 		 at += delta;
 	}
 	if (CInput::GetKeyPress(VK_DOWN)) {
-		XMVECTOR delta = XMVector3Normalize(at - eye) * 0.2f;
+		XMVECTOR delta = XMVector3Normalize(at - eye) * 0.5f;
 		eye -= delta;
 		at -= delta;
 	}
 	if (CInput::GetKeyPress(VK_LEFT)) {
-		XMVECTOR delta = XMVector3Cross(XMVector3Normalize(at - eye),up) * 0.2f;
+		XMVECTOR delta = XMVector3Cross(XMVector3Normalize(at - eye),up) * 0.5f;
 		eye += delta;
 		at += delta;
 	}
 	if (CInput::GetKeyPress(VK_RIGHT)) {
-		XMVECTOR delta = XMVector3Cross(XMVector3Normalize(at - eye),up) * 0.2f;
+		XMVECTOR delta = XMVector3Cross(XMVector3Normalize(at - eye),up) * 0.5f;
 		eye -= delta;
 		at -= delta;
 	}
 	if (CInput::GetKeyPress(VK_UP) && (CInput::GetKeyPress(VK_LSHIFT) || CInput::GetKeyPress(VK_RSHIFT))) {
-		XMVECTOR delta = up * 0.2f;
+		XMVECTOR delta = up * 0.5f;
 		eye += delta;
 		at += delta;
 	}
 	if (CInput::GetKeyPress(VK_DOWN) && (CInput::GetKeyPress(VK_LSHIFT) || CInput::GetKeyPress(VK_RSHIFT))) {
-		XMVECTOR delta = up * 0.2f;
+		XMVECTOR delta = up * 0.5f;
 		eye -= delta;
 		at -= delta;
 	}

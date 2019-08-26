@@ -45,10 +45,10 @@ private:
 
 	DX11_SUBSET*	m_SubsetArray = NULL;
 	unsigned short	m_SubsetNum;
-
+	void DrawChild(aiNode * pCurrentNode, float canonAngle);
 	void LoadObj( const char *FileName, MODEL *Model );
 	void LoadMaterial( const char *FileName, MODEL_MATERIAL **MaterialArray, unsigned short *MaterialNum );
-	void DrawChild(aiNode* pNode);
+	
 public:
 	void Init();
 	void Init(const char * filename);
@@ -57,10 +57,12 @@ public:
 	void Update();
 	void Update(XMFLOAT3 deltaPos);
 	void Draw();
+	void Draw(unsigned int mgtNum, XMFLOAT3 rootPos);
+	void Draw(unsigned int mgtNum, XMFLOAT3 rootPos, XMFLOAT3 yawpitchroll);
+	void Draw(unsigned int mgtNum, XMFLOAT3 rootPos, XMFLOAT3 yawpitchroll, float canonAngle);
+	
 	void Draw(XMFLOAT3 m_Position);
-	void Draw(XMMATRIX* transform, unsigned int e_FILETYPE);
 	void Load( const char *FileName );
-	void LoadFBX(const char* filename);
 	void Unload();
 	enum e_FILETYPE {
 		e_FILEOBJ = 0,
