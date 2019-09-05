@@ -26,7 +26,7 @@ void CTitle::Init(void)
 void CTitle::Update(void)
 {
 	
-	if (CInput::GetKeyTrigger(VK_RETURN)) {
+	if (CInput::GetKeyTrigger(VK_SPACE)) {
 		CFade::Set();
 		isChange = true;
 	}

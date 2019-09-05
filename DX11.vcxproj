@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="audio_clip.cpp" />
+    <ClCompile Include="Billboard.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CBullet.cpp" />
     <ClCompile Include="CColBox.cpp" />
@@ -27,6 +28,7 @@
     <ClCompile Include="CColSphere.cpp" />
     <ClCompile Include="CFade.cpp" />
     <ClCompile Include="CGame.cpp" />
+    <ClCompile Include="CModelAnimation.cpp" />
     <ClCompile Include="Cource.cpp" />
     <ClCompile Include="CPlayer.cpp" />
     <ClCompile Include="CResult.cpp" />
@@ -46,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio_clip.h" />
+    <ClInclude Include="Billboard.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="CBullet.h" />
     <ClInclude Include="CColBox.h" />
@@ -53,6 +56,7 @@
     <ClInclude Include="CColSphere.h" />
     <ClInclude Include="CFade.h" />
     <ClInclude Include="CGame.h" />
+    <ClInclude Include="CModelAnimation.h" />
     <ClInclude Include="Cource.h" />
     <ClInclude Include="CPlayer.h" />
     <ClInclude Include="CResult.h" />
@@ -147,6 +151,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
@@ -168,6 +173,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

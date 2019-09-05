@@ -31,6 +31,26 @@ struct MODEL
 
 //Å@ëOï˚êÈåæ
 class aiNode;
+class aiFace;
+class aiMesh;
+class CTexture;
+
+
+struct FACE {
+	aiFace* pFace;
+};
+
+struct MESH {
+	aiMesh*			pMesh;
+	MATERIAL		pMaterial;
+	ID3D11Buffer*	vertexBuffer;
+	ID3D11Buffer*	indexBuffer;
+	unsigned int	indexCount;
+	FACE*			pFaces;
+	CTexture*		pTexture;
+};
+
+
 
 class CModel
 {
@@ -45,7 +65,6 @@ private:
 
 	DX11_SUBSET*	m_SubsetArray = NULL;
 	unsigned short	m_SubsetNum;
-	void DrawChild(aiNode * pCurrentNode, float canonAngle);
 	void LoadObj( const char *FileName, MODEL *Model );
 	void LoadMaterial( const char *FileName, MODEL_MATERIAL **MaterialArray, unsigned short *MaterialNum );
 	
@@ -59,10 +78,13 @@ public:
 	void Draw();
 	void Draw(unsigned int mgtNum, XMFLOAT3 rootPos);
 	void Draw(unsigned int mgtNum, XMFLOAT3 rootPos, XMFLOAT3 yawpitchroll);
-	void Draw(unsigned int mgtNum, XMFLOAT3 rootPos, XMFLOAT3 yawpitchroll, float canonAngle);
+	void Draw(unsigned int mgtNum, XMFLOAT3 rootPos, XMFLOAT3 yawpitchroll, float canonAngle, float canonUpAngle);
+
+	void DrawChild(aiNode * pCurrentNode, float canonAngle, float canonUpAngle);
 	
 	void Draw(XMFLOAT3 m_Position);
 	void Load( const char *FileName );
+	void SetScale(XMFLOAT3 scale);
 	void Unload();
 	enum e_FILETYPE {
 		e_FILEOBJ = 0,

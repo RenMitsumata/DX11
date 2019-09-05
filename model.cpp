@@ -11,8 +11,9 @@
 #include <assimp\scene.h>
 #include <assimp\postprocess.h>
 #include <assimp\matrix4x4.h>
-#include "model.h"
 #pragma comment (lib,"assimp.lib")
+
+#include "model.h"
 // 複数化するときは、↓を配列化する
 const aiScene* g_pScene = nullptr;
 unsigned int* g_Texture = nullptr;
@@ -25,18 +26,6 @@ ID3D11Buffer*  i_IndexBuffer;
 
 //void MakeBuffer(aiNode* pNode);
 
-struct FACE {
-	aiFace* pFace;
-};
-
-struct MESH {
-	aiMesh*			pMesh;
-	MATERIAL		pMaterial;
-	ID3D11Buffer*	vertexBuffer;
-	ID3D11Buffer*	indexBuffer;
-	unsigned int	indexCount;
-	FACE*			pFaces;
-};
 
 MESH* meshes;
 
@@ -119,6 +108,11 @@ void CModel::Init(const char* filename) {
 
 
 		// 本来ならここにmaterialのtexture関係を描く
+		meshes[i].pTexture = 0;
+
+
+
+
 
 
 
@@ -286,6 +280,7 @@ void CModel::Draw()
 		// ポリゴン描画
 		CRenderer::DrawIndexed( m_SubsetArray[i].IndexNum, m_SubsetArray[i].StartIndex, 0 );
 	}
+	
 
 }
 
@@ -304,7 +299,7 @@ void CModel::Draw(unsigned int mgtNum, XMFLOAT3 rootPos) {
 	
 	aiNode* pCurrentNode = g_pScene->mRootNode; // 今のシーンは？
 	
-	DrawChild(pCurrentNode,0.0f);
+	DrawChild(pCurrentNode,0.0f,0.0f);
 	_MatList.pop_back();
 	Cnt = 0;
 	CRenderer::SetDepthEnable(false);
@@ -325,13 +320,13 @@ void CModel::Draw(unsigned int mgtNum, XMFLOAT3 rootPos, XMFLOAT3 yawpitchroll) 
 
 	aiNode* pCurrentNode = g_pScene->mRootNode; // 今のシーンは？
 
-	DrawChild(pCurrentNode,0.0f);
+	DrawChild(pCurrentNode,0.0f,0.0f);
 	_MatList.pop_back();
 	Cnt = 0;
 	CRenderer::SetDepthEnable(false);
 }
 
-void CModel::Draw(unsigned int mgtNum, XMFLOAT3 rootPos, XMFLOAT3 yawpitchroll, float canonAngle) {
+void CModel::Draw(unsigned int mgtNum, XMFLOAT3 rootPos, XMFLOAT3 yawpitchroll, float canonAngle, float canonUpAngle) {
 	// まず、rootnodeのtransform行列をプッシュする(openGL風)
 
 	XMMATRIX rootMatrix = XMMatrixIdentity();
@@ -345,13 +340,13 @@ void CModel::Draw(unsigned int mgtNum, XMFLOAT3 rootPos, XMFLOAT3 yawpitchroll, 
 
 	aiNode* pCurrentNode = g_pScene->mRootNode; // 今のシーンは？
 
-	DrawChild(pCurrentNode,canonAngle);
+	DrawChild(pCurrentNode,canonAngle,canonUpAngle);
 	_MatList.pop_back();
 	Cnt = 0;
-	
+	//CRenderer::SetDepthEnable(false);
 }
 
-void CModel::DrawChild(aiNode* pCurrentNode, float canonAngle) {
+void CModel::DrawChild(aiNode* pCurrentNode, float canonAngle, float canonUpAngle) {
 
 	if (strcmp(pCurrentNode->mName.data, "Body") == 0) {
 		XMMATRIX bodyRotate;
@@ -386,6 +381,15 @@ void CModel::DrawChild(aiNode* pCurrentNode, float canonAngle) {
 
 	}
 
+	if (strcmp(pCurrentNode->mName.data, "CanonBody") == 0) {
+
+		XMMATRIX bodyRotate;
+		bodyRotate = XMMatrixIdentity();
+		bodyRotate *= XMMatrixRotationX(canonUpAngle);
+		_MatList.push_back(bodyRotate);
+
+
+	}
 	
 
 	XMMATRIX worldMatrix = XMMatrixIdentity();
@@ -403,7 +407,7 @@ void CModel::DrawChild(aiNode* pCurrentNode, float canonAngle) {
 		CRenderer::SetVertexBuffers(meshes[pCurrentNode->mMeshes[m]].vertexBuffer);
 		// インデックスバッファ設定
 		CRenderer::SetIndexBuffer(meshes[pCurrentNode->mMeshes[m]].indexBuffer);
-
+		
 		
 		// ポリゴン描画
 		CRenderer::DrawIndexed(meshes[pCurrentNode->mMeshes[m]].indexCount,0,0);
@@ -415,9 +419,14 @@ void CModel::DrawChild(aiNode* pCurrentNode, float canonAngle) {
 
 	// その後、子供がいれば子供を描画する
 	for (int i = 0; i < pCurrentNode->mNumChildren; i++) {
-		DrawChild(pCurrentNode->mChildren[i],canonAngle);
+		DrawChild(pCurrentNode->mChildren[i],canonAngle,canonUpAngle);
 	}
 
+	if (strcmp(pCurrentNode->mName.data, "CanonBody") == 0) {
+
+		_MatList.pop_back();
+
+	}
 	if (strcmp(pCurrentNode->mName.data, "Canon") == 0) {
 
 		_MatList.pop_back();
@@ -437,56 +446,13 @@ void CModel::DrawChild(aiNode* pCurrentNode, float canonAngle) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void CModel::Draw(XMFLOAT3 m_Position)
 {
 	// マトリクス設定
 	XMMATRIX world;
 	world = XMMatrixIdentity();
-	//world *= XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
-	//world *= XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
+	world *= XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
+	world *= XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
 	world *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
 	CRenderer::SetWorldMatrix(&world);
 
@@ -508,9 +474,6 @@ void CModel::Draw(XMFLOAT3 m_Position)
 		CRenderer::DrawIndexed(m_SubsetArray[i].IndexNum, m_SubsetArray[i].StartIndex, 0);
 	}
 }
-
-
-
 
 void CModel::Load( const char *FileName )
 {
@@ -578,7 +541,12 @@ void CModel::Load( const char *FileName )
 
 }
 
-
+void CModel::SetScale(XMFLOAT3 scale)
+{
+	m_Scale.x = scale.x;
+	m_Scale.y = scale.y;
+	m_Scale.z = scale.z;
+}
 
 void CModel::Unload()
 {
@@ -594,10 +562,6 @@ void CModel::Unload()
 	delete[] m_SubsetArray;
 
 }
-
-
-
-
 
 //モデル読込////////////////////////////////////////////
 void CModel::LoadObj( const char *FileName, MODEL *Model )

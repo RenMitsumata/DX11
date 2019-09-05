@@ -1,7 +1,6 @@
 #pragma once
 
 
-
 class CModel;
 class CBullet : public CGameObject
 {
@@ -11,6 +10,7 @@ private:
 	XMFLOAT3 m_Position;
 	XMFLOAT3 m_Velocity;
 	CGameObject* owner;
+	int lifetime;
 public:
 	CBullet();
 	CBullet(CGameObject* owner,XMFLOAT3 pos, XMFLOAT3 velocity);

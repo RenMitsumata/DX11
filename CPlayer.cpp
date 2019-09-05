@@ -11,12 +11,16 @@
 #include "CBullet.h"
 #include "camera.h"
 #include "model.h"
+#include "CModelAnimation.h"
 #include "CShadow.h"
 #include "Field.h"
 #include "input.h"
 #include "SkyDome.h"
 #include <list>
+#include "audio_clip.h"
 #include "CPlayer.h"
+
+static float myAngle;
 
 CPlayer::CPlayer()
 {
@@ -29,7 +33,8 @@ CPlayer::~CPlayer()
 
 void CPlayer::Init(void)
 {
-	m_Model = new CModel();
+	m_Model = new CModelAnimation();
+	m_ModelHuman = new CModelAnimation();
 	m_Shadow = new CShadow(5.0f);
 	m_Camera = CManager::GetScene()->AddGameObject<CCamera>(0);
 	m_Position = { 0.0f,0.5f,0.0f };
@@ -38,42 +43,70 @@ void CPlayer::Init(void)
 	const XMFLOAT3 startUp = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	up = XMLoadFloat3(&startUp);
 	//m_Model->Init();
-	m_Model->Init("asset/coaster.fbx");
+	m_Model->Load("asset/coaster.fbx");
+	m_ModelHuman->Load("asset/human.fbx");
 	m_Shadow->Init();
 	skydome = CManager::GetScene()->AddGameObject<SkyDome>(1);
 	skydome->Init(50.0f);
 	//playerUI = CManager::GetScene()->AddGameObject<CPolygon>(4);
 	distance = 0.0f;
+	m_SE_Shoot = new CAudioClip;
+	m_SE_Shoot->Load("sound/shoot.wav");
+	myAngle = 0.0f;
 }
 
 void CPlayer::Uninit(void)
 {
+	delete m_SE_Shoot;
 	m_Shadow->Uninit();
+	delete m_ModelHuman;
 	delete m_Shadow;
-	m_Model->Uninit();
+	m_Model->UnLoad();
 	delete m_Model;
 }
 
 void CPlayer::Update(void)
 {
-	m_Model->Update();
+	//m_Model->Update();
 	XMFLOAT3 frontPos;
 	XMFLOAT3 upPos;
 	XMStoreFloat3(&frontPos, front);
 	XMStoreFloat3(&upPos, up);
 	frontPos = frontPos * (-6.0f) + upPos * 2.0f;
 	frontPos = m_Position + frontPos;
-	m_Camera->Update(frontPos,front,up);
 	
+	XMVECTOR curFront = pCource->GetTild(distance);
 	
+	if (distance > 0.25f) {
+		
+		XMFLOAT3 YPR = pCource->GetPitchYawRoll(distance);
+
+
+		XMVECTOR curUp = { 0.0f,1.0f,0.0f };
+		XMMATRIX tild = XMMatrixIdentity();
+		tild *= XMMatrixRotationRollPitchYaw(YPR.x, YPR.y, YPR.z);
+		XMVector3TransformNormal(curUp, tild);
+		XMStoreFloat3(&frontPos, curFront * (-6.0f) + curUp * 2.0f);
+		frontPos = m_Position + frontPos;
+		m_Camera->Update(frontPos, curFront, curUp);
+	}
+
+	else m_Camera->Update(frontPos, front, up);
+
+
+	if (CInput::GetKeyPress('W') && m_Rotation.y < 0.3f) {
+		m_Rotation.y += 0.05f;
+	}
+
+	if (CInput::GetKeyPress('S') && m_Rotation.y > -0.3f) {
+		m_Rotation.y -= 0.05f;
+	}	
 	
-	
-	
-	if (CInput::GetKeyPress(VK_LEFT)) {
+	if (CInput::GetKeyPress('A') && m_Rotation.x > -0.95f) {
 		m_Rotation.x -= 0.05f;
 	}
 	
-	if (CInput::GetKeyPress(VK_RIGHT)) {
+	if (CInput::GetKeyPress('D') && m_Rotation.x < 0.95f) {
 		m_Rotation.x += 0.05f;
 	}
 	
@@ -87,9 +120,12 @@ void CPlayer::Update(void)
 	m_Position.y += upFor.y;
 	m_Position.z += upFor.z;
 	
-	XMVECTOR curFront = pCource->GetTild(distance);
+	
 	XMMATRIX curMat = XMMatrixIdentity();
-	curMat = XMMatrixRotationY(m_Rotation.x);
+	curMat = XMMatrixRotationAxis(up,m_Rotation.x);
+	XMVECTOR right = XMVector3Cross(front,up);
+	curMat *= XMMatrixRotationAxis(right, m_Rotation.y);
+
 	curFront = XMVector3TransformNormal(curFront, curMat);
 	front = curFront;
 	for (CBullet* bullet : _Bulletlist) {
@@ -111,10 +147,11 @@ void CPlayer::Update(void)
 
 
 		XMFLOAT3 calcPos;
-		XMStoreFloat3(&calcPos, vectorFront + front * 2 + up);
+		XMStoreFloat3(&calcPos, vectorFront + front * 2.5f + up * 1.3f);
 		CBullet* bullet = new CBullet(this, m_Position + calcPos, velocity * 2.0f);	// m_Position‚É‘å–C‚Ìƒtƒƒ“ƒg‚ð‘«‚·
 		bullet->Init();
 		_Bulletlist.push_back(bullet);
+		m_SE_Shoot->Play(false);
 
 	}
 	
@@ -124,7 +161,7 @@ void CPlayer::Update(void)
 	//XMFLOAT4 newPosY = CField::GetNormal(&m_Position);
 	//m_Position.y += 0.5f;
 	
-	
+	myAngle += 0.05f;
 }
 
 void CPlayer::Draw(void)
@@ -147,10 +184,18 @@ void CPlayer::Draw(void)
 	XMMATRIX transform = XMMatrixIdentity();	
 	transform *= XMMatrixRotationNormal(up, m_Rotation.x);
 	XMFLOAT3 YPR = pCource->GetPitchYawRoll(distance);
-	transform *= XMMatrixRotationRollPitchYaw(YPR.x, YPR.y, YPR.z);
-	transform *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
-	m_Model->Draw(0,m_Position ,YPR, m_Rotation.x);
+	
+	
+	XMMATRIX mat = XMMatrixIdentity();
+	mat *= XMMatrixScaling(0.01f, 0.01f, 0.01f);
+	mat *= XMMatrixRotationRollPitchYaw(YPR.x, YPR.y, YPR.z);
+	
+	mat *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
+	//CRenderer::SetWorldMatrix(&mat);
+	m_Model->Draw(mat, m_Rotation.x,m_Rotation.y);
 
+	
+	m_ModelHuman->Draw(mat, sinf(myAngle), cosf(myAngle));
 	
 }
 

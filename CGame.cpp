@@ -28,9 +28,9 @@ void CGame::Init(void)
 	
 	//AddGameObject<CPolygon>(4);
 	CFade::Set();
-	//m_BGM = new CAudioClip;
-	//m_BGM->Load("sound/Swan Lake.wav");
-	//m_BGM->Play(true);
+	m_BGM = new CAudioClip;
+	m_BGM->Load("sound/gamebgm.wav");
+	m_BGM->Play(true);
 	
 }
 
@@ -45,8 +45,10 @@ void CGame::Uninit(void)
 void CGame::Update(void)
 {
 	CScene::Update();
+	/*
 	if (CInput::GetKeyTrigger(VK_LSHIFT)) {
 		CManager::SetScene<CResult>();
 	}
+	*/
 }
 

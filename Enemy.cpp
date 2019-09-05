@@ -8,6 +8,8 @@
 #include "CShadow.h"
 #include "CCollision.h"
 #include "CColSphere.h"
+#include "audio_clip.h"
+
 #include <stdlib.h>
 #include "Enemy.h"
 
@@ -34,6 +36,8 @@ void CEnemy::Init(void)
 	m_Col->Init(&m_Position);
 	m_Col->Attach(this);
 	m_Shadow->Init();
+	m_SE_Bomb = new CAudioClip;
+	m_SE_Bomb->Load("sound/bomb.wav");
 	Cnt++;
 }
 
@@ -41,6 +45,7 @@ void CEnemy::Uninit(void)
 {
 	delete m_Shadow;
 	delete m_Model;
+	m_SE_Bomb->Play(false);
 }
 
 void CEnemy::Update(void)

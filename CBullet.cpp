@@ -33,11 +33,13 @@ void CBullet::Init(void)
 	
 	m_Model = new CModel;
 	m_Model->Init("asset/bullet.obj",m_Position);
+	m_Model->SetScale(XMFLOAT3(0.4f, 0.4f, 0.4f));
 	//m_Position = { 0.0f,0.0f,0.0f };
 	m_Collision = CManager::GetScene()->AddCollision<CColSphere>();
 	m_Collision->Init(&m_Position);
-	m_Collision->SetRadius(2.0f);
+	m_Collision->SetRadius(0.8f);
 	m_Collision->Attach(this);
+	lifetime = 100;
 }
 
 void CBullet::Uninit(void)
@@ -52,6 +54,10 @@ void CBullet::Update(void)
 	m_Position.y += m_Velocity.y;
 	m_Position.z += m_Velocity.z;
 	m_Model->Update(m_Velocity);
+	lifetime--;
+	if (lifetime <= 0) {
+		SetDestroy();
+	}
 	
 }
 

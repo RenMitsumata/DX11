@@ -2,18 +2,21 @@
 
 
 
-class CModel;
+class CModelAnimation;
 class CShadow;
 class CCamera;
 class CBullet;
 class Cource;
 class SkyDome;
 class CPolygon;
+class CAudioClip;
+
 
 class CPlayer :	public CGameObject
 {
 private:
-	CModel* m_Model = NULL;
+	CModelAnimation* m_Model = NULL;
+	CModelAnimation* m_ModelHuman = NULL;
 	CShadow* m_Shadow = NULL;
 	CCamera* m_Camera = NULL;
 	Cource* pCource = NULL;
@@ -23,6 +26,7 @@ private:
 	XMVECTOR up;
 	float distance;
 	std::list<CBullet*> _Bulletlist;
+	CAudioClip* m_SE_Shoot;
 public:
 	CPlayer();
 	virtual ~CPlayer();
