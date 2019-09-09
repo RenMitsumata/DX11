@@ -15,6 +15,7 @@
 #include "Field.h"
 #include "polygon.h"
 #include "SkyDome.h"
+#include "CBullet.h"
 #include "Cource.h"
 
 class CScene
@@ -120,7 +121,7 @@ public:
 				object->Draw();
 				
 			}
-			
+
 		}
 	}
 

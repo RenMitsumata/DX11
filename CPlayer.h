@@ -1,7 +1,6 @@
 #pragma once
 
 
-
 class CModelAnimation;
 class CShadow;
 class CCamera;
@@ -25,7 +24,6 @@ private:
 	XMVECTOR front;
 	XMVECTOR up;
 	float distance;
-	std::list<CBullet*> _Bulletlist;
 	CAudioClip* m_SE_Shoot;
 public:
 	CPlayer();

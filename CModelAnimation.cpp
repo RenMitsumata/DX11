@@ -7,6 +7,7 @@
 #include <assimp\postprocess.h>
 #include <assimp\matrix4x4.h>
 #pragma comment (lib,"assimp.lib")
+#include "texture.h"
 #include "model.h"
 
 
@@ -15,7 +16,6 @@
 
 
 
-static std::vector<XMMATRIX> _MatList;
 
 
 void CModelAnimation::Draw()
@@ -32,15 +32,21 @@ void CModelAnimation::Draw()
 
 void CModelAnimation::Draw(XMMATRIX matrix, float canonAngle, float canonUpAngle)
 {
+	_MatList.clear();
 	
+	CRenderer::SetWorldMatrix(&matrix);
 	
-	
+	// 頂点バッファ設定
+	CRenderer::SetVertexBuffers(vertexBuffer);
+	// インデックスバッファ設定
+	CRenderer::SetIndexBuffer(indexBuffer);
 	_MatList.push_back(matrix);
-	CRenderer::SetDepthEnable(true);
+	
 
 	aiNode* pCurrentNode = pScene->mRootNode; // 今のシーンは？
 
 	DrawChild(pCurrentNode,canonAngle,canonUpAngle);
+
 	_MatList.pop_back();
 
 	
@@ -49,8 +55,8 @@ void CModelAnimation::Draw(XMMATRIX matrix, float canonAngle, float canonUpAngle
 void CModelAnimation::DrawChild(aiNode * pNode, float canonAngle, float canonUpAngle)
 {
 	
-
-
+	
+	
 	if (strcmp(pNode->mName.data, "Body") == 0) {
 		XMMATRIX bodyRotate;
 		bodyRotate = XMMatrixIdentity();
@@ -58,6 +64,8 @@ void CModelAnimation::DrawChild(aiNode * pNode, float canonAngle, float canonUpA
 		_MatList.push_back(bodyRotate);
 
 	}
+	
+	
 
 	if (strcmp(pNode->mName.data, "RightShoulder") == 0) {
 		XMMATRIX bodyRotate;
@@ -76,15 +84,6 @@ void CModelAnimation::DrawChild(aiNode * pNode, float canonAngle, float canonUpA
 	}
 	
 
-	// まずはローカル座標を求めて、スタックに押し込む
-	aiMatrix4x4 localMat = pNode->mTransformation;
-	aiTransposeMatrix4(&localMat);
-	XMMATRIX pushMatrix = XMMatrixSet(localMat.a1, localMat.a2, localMat.a3, localMat.a4,
-		localMat.b1, localMat.b2, localMat.b3, localMat.b4,
-		localMat.c1, localMat.c2, localMat.c3, localMat.c4,
-		localMat.d1, localMat.d2, localMat.d3, localMat.d4
-	);
-	_MatList.push_back(pushMatrix);
 
 	if (strcmp(pNode->mName.data, "Canon") == 0) {
 
@@ -106,10 +105,19 @@ void CModelAnimation::DrawChild(aiNode * pNode, float canonAngle, float canonUpA
 
 	}
 
+	
 
+	// まずはローカル座標を求めて、スタックに押し込む
+	aiMatrix4x4 localMat = pNode->mTransformation;
+	aiTransposeMatrix4(&localMat);
+	XMMATRIX pushMatrix = XMMatrixSet(localMat.a1, localMat.a2, localMat.a3, localMat.a4,
+		localMat.b1, localMat.b2, localMat.b3, localMat.b4,
+		localMat.c1, localMat.c2, localMat.c3, localMat.c4,
+		localMat.d1, localMat.d2, localMat.d3, localMat.d4
+	);
+	_MatList.push_back(pushMatrix);
 
-
-
+	
 	
 
 	XMMATRIX worldMatrix = XMMatrixIdentity();
@@ -123,28 +131,18 @@ void CModelAnimation::DrawChild(aiNode * pNode, float canonAngle, float canonUpA
 	for (int m = 0; m < pNode->mNumMeshes; m++) {
 		// マテリアル設定
 		CRenderer::SetMaterial(meshes[pNode->mMeshes[m]].pMaterial);
-
-		// 頂点バッファ設定
-		CRenderer::SetVertexBuffers(meshes[pNode->mMeshes[m]].vertexBuffer);
-		// インデックスバッファ設定
-		CRenderer::SetIndexBuffer(meshes[pNode->mMeshes[m]].indexBuffer);
-		
 		
 
 		// ポリゴン描画
-		CRenderer::DrawIndexed(meshes[pNode->mMeshes[m]].indexCount, 0, 0);
-
-
-
-
+		CRenderer::DrawIndexed(meshes[pNode->mMeshes[m]].indexCount, meshes[pNode->mMeshes[m]].startIndex, 0);
+			   		 
 	}
-
 	// その後、子供がいれば子供を描画する
 	for (int i = 0; i < pNode->mNumChildren; i++) {
 		DrawChild(pNode->mChildren[i],canonAngle, canonUpAngle);
 	}
 
-
+	
 	if (strcmp(pNode->mName.data, "RightShoulder") == 0) {
 		_MatList.pop_back();
 
@@ -171,13 +169,14 @@ void CModelAnimation::DrawChild(aiNode * pNode, float canonAngle, float canonUpA
 		_MatList.pop_back();
 
 	}
-
+	
 	if (strcmp(pNode->mName.data, "Body") == 0) {
 
 		_MatList.pop_back();
 
 	}
-
+	
+	
 	// 終わったら、行列をポップする
 	_MatList.pop_back();
 }
@@ -192,14 +191,18 @@ void CModelAnimation::Load(const char * filename)
 		lstrcat(filestring, exp);
 		MessageBox(NULL, filestring, "Assimp", MB_OK | MB_ICONHAND);
 	}
+	
+	// 頂点バッファ、インデックスバッファの単一化のためのカウンタ
+	unsigned int indexCnt = 0;
 
 	meshes = new MESH[pScene->mNumMeshes];
 
 	std::vector<VERTEX_3D> _VertexList;
+	std::vector<unsigned short> _IndexList;
 
 	for (int i = 0; i < pScene->mNumMeshes; i++) {
 		meshes[i].pMesh = pScene->mMeshes[i];
-		_VertexList.clear();
+		
 		// マテリアルの設定
 		const aiMaterial* mat = pScene->mMaterials[meshes[i].pMesh->mMaterialIndex];
 		
@@ -226,100 +229,109 @@ void CModelAnimation::Load(const char * filename)
 		meshes[i].pMaterial.Emission.b = bufColor.b;
 		meshes[i].pMaterial.Emission.a = bufColor.a;
 
-
-
+		
 		// 本来ならここにmaterialのtexture関係を描く
-
+		//meshes[i].pTexture = new CTexture();
 		//pScene->mMeshes[pNode->mMeshes[0]]->mVertices;
-
-		VERTEX_3D* vertex = new VERTEX_3D[meshes[i].pMesh->mNumVertices];
+		VERTEX_3D vertex;
 		for (int n = 0; n < meshes[i].pMesh->mNumVertices; n++) {
-			vertex[n].Position.x = pScene->mMeshes[i]->mVertices[n].x;
-
-
-			vertex[n].Position.x = meshes[i].pMesh->mVertices[n].x;
-			vertex[n].Position.y = meshes[i].pMesh->mVertices[n].y;
-			vertex[n].Position.z = meshes[i].pMesh->mVertices[n].z;
-			vertex[n].Normal.x = meshes[i].pMesh->mNormals[n].x;
-			vertex[n].Normal.y = meshes[i].pMesh->mNormals[n].y;
-			vertex[n].Normal.z = meshes[i].pMesh->mNormals[n].z;
-			vertex[n].Diffuse.x = 3.0f;
-			vertex[n].Diffuse.y = 3.0f;
-			vertex[n].Diffuse.z = 3.0f;
-			vertex[n].Diffuse.w = 1.0f;
-			vertex[n].TexCoord.x = 0.0f;
-			vertex[n].TexCoord.y = 0.0f;
-			_VertexList.push_back(vertex[n]);
+			vertex.Position.x = meshes[i].pMesh->mVertices[n].x;
+			vertex.Position.y = meshes[i].pMesh->mVertices[n].y;
+			vertex.Position.z = meshes[i].pMesh->mVertices[n].z;
+			vertex.Normal.x = meshes[i].pMesh->mNormals[n].x;
+			vertex.Normal.y = meshes[i].pMesh->mNormals[n].y;
+			vertex.Normal.z = meshes[i].pMesh->mNormals[n].z;
+			vertex.Diffuse.x = 3.0f;
+			vertex.Diffuse.y = 3.0f;
+			vertex.Diffuse.z = 3.0f;
+			vertex.Diffuse.w = 1.0f;
+			vertex.TexCoord.x = 0.0f;
+			vertex.TexCoord.y = 0.0f;
+			_VertexList.push_back(vertex);
 		}
-
-
-		// 頂点バッファの作成
-		VERTEX_3D* vertexBuf = new VERTEX_3D[_VertexList.size()];
-		unsigned int num = 0;
-		for (VERTEX_3D oneVertex : _VertexList) {
-			vertexBuf[num] = oneVertex;
-			num++;
-		}
-
-		D3D11_BUFFER_DESC vertexBufferDesc;
-		vertexBufferDesc.ByteWidth = sizeof(VERTEX_3D) * _VertexList.size();
-		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		vertexBufferDesc.CPUAccessFlags = 0;
-		vertexBufferDesc.MiscFlags = 0;
-		vertexBufferDesc.StructureByteStride = 0;
-		D3D11_SUBRESOURCE_DATA vbData;
-		vbData.pSysMem = vertexBuf;
-		vbData.SysMemPitch = 0;
-		vbData.SysMemSlicePitch = 0;
-		CRenderer::GetDevice()->CreateBuffer(&vertexBufferDesc, &vbData, &meshes[i].vertexBuffer);
-
-		delete vertexBuf;
-
-
-
+		
 		// インデックスバッファを作る
 		meshes[i].pFaces = new FACE[meshes[i].pMesh->mNumFaces];
-		unsigned short indexNum = 0;
+		unsigned int indexNum = 0;
 		for (int in = 0; in < meshes[i].pMesh->mNumFaces; in++) {
 			meshes[i].pFaces[in].pFace = &meshes[i].pMesh->mFaces[in];
 			indexNum += meshes[i].pFaces[in].pFace->mNumIndices;
 		}
 		meshes[i].indexCount = indexNum;
 
-		unsigned short* indexIns = new unsigned short[indexNum];
+		// インデックスの開始位置を求める
+		meshes[i].startIndex = indexCnt;
+
+
+		unsigned short indexIns;
 		int a = 0;
 		for (int f = 0; f < meshes[i].pMesh->mNumFaces; f++) {
 			for (int idx = 0; idx < meshes[i].pFaces[f].pFace->mNumIndices; idx++) {
-				indexIns[a] = meshes[i].pFaces[f].pFace->mIndices[idx];
+				indexIns = meshes[i].pFaces[f].pFace->mIndices[idx];
+				_IndexList.push_back(indexIns);
+				indexCnt++;
 				a++;
 			}
 		}
 
-		D3D11_BUFFER_DESC indexBuffer;
-		indexBuffer.ByteWidth = sizeof(unsigned short) * indexNum;
-		indexBuffer.Usage = D3D11_USAGE_DEFAULT;
-		indexBuffer.BindFlags = D3D11_BIND_INDEX_BUFFER;
-		indexBuffer.CPUAccessFlags = 0;
-		indexBuffer.MiscFlags = 0;
-		indexBuffer.StructureByteStride = 0;
-		D3D11_SUBRESOURCE_DATA ibData;
-		ibData.pSysMem = indexIns;
-		ibData.SysMemPitch = 0;
-		ibData.SysMemSlicePitch = 0;
-		CRenderer::GetDevice()->CreateBuffer(&indexBuffer, &ibData, &meshes[i].indexBuffer);
 
-
-
-		delete indexIns;
-		delete vertex;
-		//aiReleaseImport(pScene);
+		
 	}
+
+	// 頂点バッファの作成
+	VERTEX_3D* vertexBuf = new VERTEX_3D[_VertexList.size()];
+	unsigned int num = 0;
+	for (VERTEX_3D oneVertex : _VertexList) {
+		vertexBuf[num] = oneVertex;
+		num++;
+	}
+	 
+	// インデックスバッファの作製
+	unsigned short* indexBuf = new unsigned short[_IndexList.size()];
+	num = 0;
+	for (unsigned short oneIndex : _IndexList) {
+		indexBuf[num] = oneIndex;
+		num++;
+	}
+
+	D3D11_BUFFER_DESC vertexBufferDesc;
+	vertexBufferDesc.ByteWidth = sizeof(VERTEX_3D) * _VertexList.size();
+	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertexBufferDesc.CPUAccessFlags = 0;
+	vertexBufferDesc.MiscFlags = 0;
+	vertexBufferDesc.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA vbData;
+	vbData.pSysMem = vertexBuf;
+	vbData.SysMemPitch = 0;
+	vbData.SysMemSlicePitch = 0;
+	CRenderer::GetDevice()->CreateBuffer(&vertexBufferDesc, &vbData, &vertexBuffer);
+
+	delete vertexBuf;
+
+
+
+
+	D3D11_BUFFER_DESC indexBufferDesc;
+	indexBufferDesc.ByteWidth = sizeof(unsigned short) * _IndexList.size();
+	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	indexBufferDesc.CPUAccessFlags = 0;
+	indexBufferDesc.MiscFlags = 0;
+	indexBufferDesc.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA ibData;
+	ibData.pSysMem = indexBuf;
+	ibData.SysMemPitch = 0;
+	ibData.SysMemSlicePitch = 0;
+	CRenderer::GetDevice()->CreateBuffer(&indexBufferDesc, &ibData, &indexBuffer);
+
+	delete indexBuf;
 }
 
 void CModelAnimation::UnLoad()
 {
 	delete[] meshes;
+	aiReleaseImport(pScene);
 	if (vertexBuffer) {
 		vertexBuffer->Release();
 	}

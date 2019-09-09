@@ -69,16 +69,19 @@ void CModel::Init(const char* filename) {
 
 
 
+	// 頂点バッファ、インデックスバッファの単一化のためのカウンタ
+	unsigned int indexCnt = 0;
 
 
 
 	meshes = new MESH[g_pScene->mNumMeshes];
 
 	std::vector<VERTEX_3D> _VertexList;
+	std::vector<unsigned short> _IndexList;
 
 	for (int i = 0; i < g_pScene->mNumMeshes; i++) {
 		meshes[i].pMesh = g_pScene->mMeshes[i];
-		_VertexList.clear();
+		
 		// マテリアルの設定
 		const aiMaterial* mat = g_pScene->mMaterials[meshes[i].pMesh->mMaterialIndex];
 
@@ -108,54 +111,33 @@ void CModel::Init(const char* filename) {
 
 
 		// 本来ならここにmaterialのtexture関係を描く
-		meshes[i].pTexture = 0;
-
-
-
-
-
-
-
-		VERTEX_3D* vertex = new VERTEX_3D[meshes[i].pMesh->mNumVertices];
-		for (int n = 0; n < meshes[i].pMesh->mNumVertices; n++) {
-			vertex[n].Position.x = meshes[i].pMesh->mVertices[n].x;
-			vertex[n].Position.y = meshes[i].pMesh->mVertices[n].y;
-			vertex[n].Position.z = meshes[i].pMesh->mVertices[n].z;
-			vertex[n].Normal.x = meshes[i].pMesh->mNormals[n].x;
-			vertex[n].Normal.y = meshes[i].pMesh->mNormals[n].y;
-			vertex[n].Normal.z = meshes[i].pMesh->mNormals[n].z;
-			vertex[n].Diffuse.x = 3.0f;
-			vertex[n].Diffuse.y = 3.0f;
-			vertex[n].Diffuse.z = 3.0f;
-			vertex[n].Diffuse.w = 1.0f;
-			vertex[n].TexCoord.x = 0.0f;
-			vertex[n].TexCoord.y = 0.0f;
-			_VertexList.push_back(vertex[n]);
-		}
-
-
-		// 頂点バッファの作成
-		VERTEX_3D* vertexBuf = new VERTEX_3D[_VertexList.size()];
-		unsigned int num = 0;
-		for (VERTEX_3D oneVertex : _VertexList) {
-			vertexBuf[num] = oneVertex;
-			num++;
-		}
 		
-		D3D11_BUFFER_DESC vertexBufferDesc;
-		vertexBufferDesc.ByteWidth = sizeof(VERTEX_3D) * _VertexList.size();
-		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		vertexBufferDesc.CPUAccessFlags = 0;
-		vertexBufferDesc.MiscFlags = 0;
-		vertexBufferDesc.StructureByteStride = 0;
-		D3D11_SUBRESOURCE_DATA vbData;
-		vbData.pSysMem = vertexBuf;
-		vbData.SysMemPitch = 0;
-		vbData.SysMemSlicePitch = 0;
-		CRenderer::GetDevice()->CreateBuffer(&vertexBufferDesc, &vbData, &meshes[i].vertexBuffer);
+	//	meshes[i].pTexture = new CTexture();
 
-		delete vertexBuf;
+
+
+
+
+
+		VERTEX_3D vertex;
+		for (int n = 0; n < meshes[i].pMesh->mNumVertices; n++) {
+			vertex.Position.x = meshes[i].pMesh->mVertices[n].x;
+			vertex.Position.y = meshes[i].pMesh->mVertices[n].y;
+			vertex.Position.z = meshes[i].pMesh->mVertices[n].z;
+			vertex.Normal.x = meshes[i].pMesh->mNormals[n].x;
+			vertex.Normal.y = meshes[i].pMesh->mNormals[n].y;
+			vertex.Normal.z = meshes[i].pMesh->mNormals[n].z;
+			vertex.Diffuse.x = 3.0f;
+			vertex.Diffuse.y = 3.0f;
+			vertex.Diffuse.z = 3.0f;
+			vertex.Diffuse.w = 1.0f;
+			vertex.TexCoord.x = 0.0f;
+			vertex.TexCoord.y = 0.0f;
+			_VertexList.push_back(vertex);
+		}
+
+
+		
 
 		
 
@@ -168,34 +150,71 @@ void CModel::Init(const char* filename) {
 		}
 		meshes[i].indexCount = indexNum;
 
-		unsigned short* indexIns = new unsigned short[indexNum];
+		// インデックスの開始位置を求める
+		meshes[i].startIndex = indexCnt;
+
+
+		unsigned short indexIns;
 		int a = 0;
 		for (int f = 0; f < meshes[i].pMesh->mNumFaces; f++) {
 			for (int idx = 0; idx < meshes[i].pFaces[f].pFace->mNumIndices; idx++) {
-				indexIns[a] = meshes[i].pFaces[f].pFace->mIndices[idx];
+				indexIns = meshes[i].pFaces[f].pFace->mIndices[idx];
+				_IndexList.push_back(indexIns);
+				indexCnt++;
 				a++;
 			}
 		}
 
-		D3D11_BUFFER_DESC indexBuffer;
-		indexBuffer.ByteWidth = sizeof(unsigned short) * indexNum;
-		indexBuffer.Usage = D3D11_USAGE_DEFAULT;
-		indexBuffer.BindFlags = D3D11_BIND_INDEX_BUFFER;
-		indexBuffer.CPUAccessFlags = 0;
-		indexBuffer.MiscFlags = 0;
-		indexBuffer.StructureByteStride = 0;
-		D3D11_SUBRESOURCE_DATA ibData;
-		ibData.pSysMem = indexIns;
-		ibData.SysMemPitch = 0;
-		ibData.SysMemSlicePitch = 0;
-		CRenderer::GetDevice()->CreateBuffer(&indexBuffer, &ibData, &meshes[i].indexBuffer);
-
-
-
-		delete indexIns;
-		delete vertex;
+	
 		
 	}
+
+	// 頂点バッファの作成
+	VERTEX_3D* vertexBuf = new VERTEX_3D[_VertexList.size()];
+	unsigned int num = 0;
+	for (VERTEX_3D oneVertex : _VertexList) {
+		vertexBuf[num] = oneVertex;
+		num++;
+	}
+
+	// インデックスバッファの作製
+	unsigned short* indexBuf = new unsigned short[_IndexList.size()];
+	num = 0;
+	for (unsigned short oneIndex : _IndexList) {
+		indexBuf[num] = oneIndex;
+		num++;
+	}
+
+
+	D3D11_BUFFER_DESC vertexBufferDesc;
+	vertexBufferDesc.ByteWidth = sizeof(VERTEX_3D) * _VertexList.size();
+	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertexBufferDesc.CPUAccessFlags = 0;
+	vertexBufferDesc.MiscFlags = 0;
+	vertexBufferDesc.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA vbData;
+	vbData.pSysMem = vertexBuf;
+	vbData.SysMemPitch = 0;
+	vbData.SysMemSlicePitch = 0;
+	CRenderer::GetDevice()->CreateBuffer(&vertexBufferDesc, &vbData, &m_VertexBuffer);
+
+	delete vertexBuf;
+
+	D3D11_BUFFER_DESC indexBuffer;
+	indexBuffer.ByteWidth = sizeof(unsigned short) * _IndexList.size();
+	indexBuffer.Usage = D3D11_USAGE_DEFAULT;
+	indexBuffer.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	indexBuffer.CPUAccessFlags = 0;
+	indexBuffer.MiscFlags = 0;
+	indexBuffer.StructureByteStride = 0;
+	D3D11_SUBRESOURCE_DATA ibData;
+	ibData.pSysMem = indexBuf;
+	ibData.SysMemPitch = 0;
+	ibData.SysMemSlicePitch = 0;
+	CRenderer::GetDevice()->CreateBuffer(&indexBuffer, &ibData, &m_IndexBuffer);
+
+	delete indexBuf;
 	
 	
 	//int material = g_pScene->mNumMaterials;
@@ -338,6 +357,11 @@ void CModel::Draw(unsigned int mgtNum, XMFLOAT3 rootPos, XMFLOAT3 yawpitchroll, 
 	_MatList.push_back(rootMatrix);
 	CRenderer::SetDepthEnable(true);
 
+	// 頂点バッファ設定
+	CRenderer::SetVertexBuffers(m_VertexBuffer);
+	// インデックスバッファ設定
+	CRenderer::SetIndexBuffer(m_IndexBuffer);
+
 	aiNode* pCurrentNode = g_pScene->mRootNode; // 今のシーンは？
 
 	DrawChild(pCurrentNode,canonAngle,canonUpAngle);
@@ -401,19 +425,15 @@ void CModel::DrawChild(aiNode* pCurrentNode, float canonAngle, float canonUpAngl
 	// まず、自分を描画する
 	for (int m = 0; m < pCurrentNode->mNumMeshes; m++) {
 		// マテリアル設定
+		
 		CRenderer::SetMaterial(meshes[pCurrentNode->mMeshes[m]].pMaterial);		
+		
+		// テクスチャ設定
+		//CRenderer::SetTexture(meshes[pCurrentNode->mMeshes[m]].pTexture);
 
-		// 頂点バッファ設定
-		CRenderer::SetVertexBuffers(meshes[pCurrentNode->mMeshes[m]].vertexBuffer);
-		// インデックスバッファ設定
-		CRenderer::SetIndexBuffer(meshes[pCurrentNode->mMeshes[m]].indexBuffer);
-		
-		
 		// ポリゴン描画
-		CRenderer::DrawIndexed(meshes[pCurrentNode->mMeshes[m]].indexCount,0,0);
-
-			
-		
+		CRenderer::DrawIndexed(meshes[pCurrentNode->mMeshes[m]].indexCount, meshes[pCurrentNode->mMeshes[m]].startIndex,0);
+				
 
 	}
 
@@ -556,8 +576,14 @@ void CModel::Unload()
 	if (m_IndexBuffer) {
 		m_IndexBuffer->Release();
 	}
-	
-
+	for (int i = 0; i < g_pScene->mNumMeshes; i++) {
+		/*
+		if (meshes[i].pTexture) {
+			delete meshes[i].pTexture;
+		}
+		*/
+	}
+	delete[] meshes;
 
 	delete[] m_SubsetArray;
 

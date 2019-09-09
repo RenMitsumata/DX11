@@ -14,6 +14,7 @@ private:
 public:
 	CBullet();
 	CBullet(CGameObject* owner,XMFLOAT3 pos, XMFLOAT3 velocity);
+	void Set(CGameObject * owner, XMFLOAT3 pos, XMFLOAT3 velocity);
 	virtual ~CBullet();
 	void Init(void);
 	void Uninit(void);

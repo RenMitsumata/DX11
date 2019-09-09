@@ -12,6 +12,7 @@
 
 CBullet::CBullet()
 {
+	m_Destroy = false;
 }
 
 CBullet::CBullet(CGameObject* owner,XMFLOAT3 pos, XMFLOAT3 velocity)
@@ -22,6 +23,16 @@ CBullet::CBullet(CGameObject* owner,XMFLOAT3 pos, XMFLOAT3 velocity)
 	m_Destroy = false;
 }
 
+void CBullet::Set(CGameObject* owner, XMFLOAT3 pos, XMFLOAT3 velocity)
+{
+	this->owner = owner;
+	m_Velocity = velocity;
+	m_Position = pos;
+	m_Destroy = false;
+	m_Model = new CModel;
+	m_Model->Init("asset/bullet.obj", m_Position);
+	m_Model->SetScale(XMFLOAT3(0.4f, 0.4f, 0.4f));
+}
 
 
 CBullet::~CBullet()
@@ -31,10 +42,9 @@ CBullet::~CBullet()
 void CBullet::Init(void)
 {
 	
-	m_Model = new CModel;
-	m_Model->Init("asset/bullet.obj",m_Position);
-	m_Model->SetScale(XMFLOAT3(0.4f, 0.4f, 0.4f));
+	
 	//m_Position = { 0.0f,0.0f,0.0f };
+
 	m_Collision = CManager::GetScene()->AddCollision<CColSphere>();
 	m_Collision->Init(&m_Position);
 	m_Collision->SetRadius(0.8f);

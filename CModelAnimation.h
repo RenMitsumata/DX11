@@ -1,13 +1,13 @@
 #pragma once
 
-class aiScene;
+struct aiScene;
 
 class CModelAnimation
 {
 private:
+	std::vector<XMMATRIX> _MatList;
 	ID3D11Buffer* vertexBuffer;
 	ID3D11Buffer* indexBuffer;
-	unsigned int indexNum;
 	const aiScene* pScene;
 	MESH* meshes;
 	//void DrawChild(aiNode* pNode);

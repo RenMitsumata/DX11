@@ -30,9 +30,9 @@ struct MODEL
 };
 
 //@‘O•ûéŒ¾
-class aiNode;
-class aiFace;
-class aiMesh;
+struct aiNode;
+struct aiFace;
+struct aiMesh;
 class CTexture;
 
 
@@ -45,9 +45,10 @@ struct MESH {
 	MATERIAL		pMaterial;
 	ID3D11Buffer*	vertexBuffer;
 	ID3D11Buffer*	indexBuffer;
-	unsigned int	indexCount;
+	unsigned short	indexCount;
+	unsigned short	startIndex;
 	FACE*			pFaces;
-	CTexture*		pTexture;
+	//CTexture*		pTexture;
 };
 
 

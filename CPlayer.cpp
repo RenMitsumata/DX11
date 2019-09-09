@@ -58,10 +58,11 @@ void CPlayer::Init(void)
 void CPlayer::Uninit(void)
 {
 	delete m_SE_Shoot;
-	m_Shadow->Uninit();
-	delete m_ModelHuman;
+	m_Shadow->Uninit();	
 	delete m_Shadow;
+	m_ModelHuman->UnLoad();
 	m_Model->UnLoad();
+	delete m_ModelHuman;
 	delete m_Model;
 }
 
@@ -128,12 +129,7 @@ void CPlayer::Update(void)
 
 	curFront = XMVector3TransformNormal(curFront, curMat);
 	front = curFront;
-	for (CBullet* bullet : _Bulletlist) {
-		bullet->Update();
-	}
-	_Bulletlist.remove_if([](CBullet* bullet) {
-		return bullet->isDestroy();
-	});
+	
 
 	if (CInput::GetKeyTrigger(VK_SPACE)) {
 		XMFLOAT3 velocity;
@@ -148,9 +144,9 @@ void CPlayer::Update(void)
 
 		XMFLOAT3 calcPos;
 		XMStoreFloat3(&calcPos, vectorFront + front * 2.5f + up * 1.3f);
-		CBullet* bullet = new CBullet(this, m_Position + calcPos, velocity * 2.0f);	// m_Position‚É‘å–C‚Ìƒtƒƒ“ƒg‚ð‘«‚·
-		bullet->Init();
-		_Bulletlist.push_back(bullet);
+		CBullet* bullet = CManager::GetScene()->AddGameObject<CBullet>(2);
+		bullet->Set(this, m_Position + calcPos, velocity * 2.0f);
+		//CBullet* bullet = new CBullet(this, m_Position + calcPos, velocity * 2.0f);	// m_Position‚É‘å–C‚Ìƒtƒƒ“ƒg‚ð‘«‚·
 		m_SE_Shoot->Play(false);
 
 	}
@@ -168,9 +164,7 @@ void CPlayer::Draw(void)
 {
 	m_Shadow->Draw(m_Position);
 	
-	for (CBullet* bullet : _Bulletlist) {
-		bullet->Draw();
-	}
+	
 	if (pCource == NULL) {
 		pCource = CManager::GetScene()->GetGameObject<Cource>(1);
 	}
@@ -178,6 +172,7 @@ void CPlayer::Draw(void)
 	XMFLOAT3 buffer;
 	XMStoreFloat3(&buffer,front);
 	*/
+	
 	XMFLOAT3 curRotate;
 	XMStoreFloat3(&curRotate, front);
 
@@ -187,15 +182,16 @@ void CPlayer::Draw(void)
 	
 	
 	XMMATRIX mat = XMMatrixIdentity();
-	mat *= XMMatrixScaling(0.01f, 0.01f, 0.01f);
 	mat *= XMMatrixRotationRollPitchYaw(YPR.x, YPR.y, YPR.z);
+	mat *= XMMatrixScaling(0.01f, 0.01f, 0.01f);
+	
 	
 	mat *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
 	//CRenderer::SetWorldMatrix(&mat);
-	m_Model->Draw(mat, m_Rotation.x,m_Rotation.y);
-
-	
 	m_ModelHuman->Draw(mat, sinf(myAngle), cosf(myAngle));
+	m_Model->Draw(mat, m_Rotation.x,m_Rotation.y);
+	
+	
 	
 }
 
