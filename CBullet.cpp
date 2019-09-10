@@ -55,6 +55,9 @@ void CBullet::Uninit(void)
 
 void CBullet::Update(void)
 {
+	if (isKilled) {
+		delete this;
+	}
 	XMFLOAT3 delta;
 	m_Position.x += m_Velocity.x;
 	m_Position.y += m_Velocity.y;

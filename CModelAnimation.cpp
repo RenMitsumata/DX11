@@ -109,7 +109,7 @@ void CModelAnimation::DrawChild(aiNode * pNode, float canonAngle, float canonUpA
 	if (strcmp(pNode->mName.data, "LeftArm") == 0) {
 		XMMATRIX bodyRotate;
 		bodyRotate = XMMatrixIdentity();
-		bodyRotate *= XMMatrixRotationZ(canonUpAngle);
+		bodyRotate *= XMMatrixRotationZ(-canonUpAngle);
 		_MatList.push_back(bodyRotate);
 
 	}
