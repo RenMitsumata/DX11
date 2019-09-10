@@ -130,6 +130,10 @@ void CPlayer::Update(void)
 	curFront = XMVector3TransformNormal(curFront, curMat);
 	front = curFront;
 	
+	for (CBullet* bullet : _bulletList) {
+		bullet->Update();
+	}
+
 
 	if (CInput::GetKeyTrigger(VK_SPACE)) {
 		XMFLOAT3 velocity;
@@ -144,13 +148,17 @@ void CPlayer::Update(void)
 
 		XMFLOAT3 calcPos;
 		XMStoreFloat3(&calcPos, vectorFront + front * 2.5f + up * 1.3f);
-		CBullet* bullet = CManager::GetScene()->AddGameObject<CBullet>(2);
+		CBullet* bullet = new CBullet;
+		bullet->Init();
 		bullet->Set(this, m_Position + calcPos, velocity * 2.0f);
+		_bulletList.push_back(bullet);
 		//CBullet* bullet = new CBullet(this, m_Position + calcPos, velocity * 2.0f);	// m_Position‚É‘å–C‚Ìƒtƒƒ“ƒg‚ð‘«‚·
 		m_SE_Shoot->Play(false);
 
 	}
-	
+	_bulletList.remove_if([](CBullet* bullet) {
+		return bullet->isDestroy();
+	});
 
 	//front = pCource->GetTild(distance);
 	//float newPosY = CField::GetHeight(m_Position);
@@ -173,6 +181,11 @@ void CPlayer::Draw(void)
 	XMStoreFloat3(&buffer,front);
 	*/
 	
+	for (CBullet* bullet : _bulletList) {
+		bullet->Draw();
+	}
+
+
 	XMFLOAT3 curRotate;
 	XMStoreFloat3(&curRotate, front);
 

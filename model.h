@@ -42,12 +42,12 @@ struct FACE {
 
 struct MESH {
 	aiMesh*			pMesh;
-	MATERIAL		pMaterial;
 	ID3D11Buffer*	vertexBuffer;
 	ID3D11Buffer*	indexBuffer;
-	unsigned short	indexCount;
-	unsigned short	startIndex;
+	//unsigned short	indexCount;
+	//unsigned short	startIndex;
 	FACE*			pFaces;
+	unsigned short baseIndexNum;
 	//CTexture*		pTexture;
 };
 

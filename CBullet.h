@@ -2,7 +2,7 @@
 
 
 class CModel;
-class CBullet : public CGameObject
+class CBullet
 {
 private:
 	CModel* m_Model;
@@ -11,6 +11,7 @@ private:
 	XMFLOAT3 m_Velocity;
 	CGameObject* owner;
 	int lifetime;
+	bool isKilled;
 public:
 	CBullet();
 	CBullet(CGameObject* owner,XMFLOAT3 pos, XMFLOAT3 velocity);
@@ -20,6 +21,6 @@ public:
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
-	bool isDestroy(void) { return m_Destroy; }
+	bool isDestroy(void) { return isKilled; }
 };
 

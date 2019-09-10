@@ -8,6 +8,8 @@ private:
 	std::vector<XMMATRIX> _MatList;
 	ID3D11Buffer* vertexBuffer;
 	ID3D11Buffer* indexBuffer;
+	DX11_SUBSET*	m_SubsetArray = NULL;
+	unsigned short	m_SubsetNum;
 	const aiScene* pScene;
 	MESH* meshes;
 	//void DrawChild(aiNode* pNode);
