@@ -25,6 +25,7 @@ private:
 	XMVECTOR up;
 	float distance;
 	CAudioClip* m_SE_Shoot;
+	std::list<CBullet*> _bulletList;
 public:
 	CPlayer();
 	virtual ~CPlayer();

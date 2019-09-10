@@ -54,8 +54,13 @@ void CModelAnimation::Draw(XMMATRIX matrix, float canonAngle, float canonUpAngle
 
 void CModelAnimation::DrawChild(aiNode * pNode, float canonAngle, float canonUpAngle)
 {
-	
-	
+	if (strcmp(pNode->mName.data, "HumanBody") == 0) {
+		XMMATRIX bodyRotate;
+		bodyRotate = XMMatrixIdentity();
+		bodyRotate *= XMMatrixRotationY(canonAngle);
+		_MatList.push_back(bodyRotate);
+
+	}
 	
 	if (strcmp(pNode->mName.data, "Body") == 0) {
 		XMMATRIX bodyRotate;
@@ -65,6 +70,16 @@ void CModelAnimation::DrawChild(aiNode * pNode, float canonAngle, float canonUpA
 
 	}
 	
+	
+	// まずはローカル座標を求めて、スタックに押し込む
+	aiMatrix4x4 localMat = pNode->mTransformation;
+	aiTransposeMatrix4(&localMat);
+	XMMATRIX pushMatrix = XMMatrixSet(localMat.a1, localMat.a2, localMat.a3, localMat.a4,
+		localMat.b1, localMat.b2, localMat.b3, localMat.b4,
+		localMat.c1, localMat.c2, localMat.c3, localMat.c4,
+		localMat.d1, localMat.d2, localMat.d3, localMat.d4
+	);
+	_MatList.push_back(pushMatrix);
 	
 
 	if (strcmp(pNode->mName.data, "RightShoulder") == 0) {
@@ -76,6 +91,22 @@ void CModelAnimation::DrawChild(aiNode * pNode, float canonAngle, float canonUpA
 	}
 
 	if (strcmp(pNode->mName.data, "LeftShoulder") == 0) {
+		XMMATRIX bodyRotate;
+		bodyRotate = XMMatrixIdentity();
+		bodyRotate *= XMMatrixRotationZ(-canonAngle);
+		_MatList.push_back(bodyRotate);
+
+	}
+
+	if (strcmp(pNode->mName.data, "RightArm") == 0) {
+		XMMATRIX bodyRotate;
+		bodyRotate = XMMatrixIdentity();
+		bodyRotate *= XMMatrixRotationZ(canonUpAngle);
+		_MatList.push_back(bodyRotate);
+
+	}
+
+	if (strcmp(pNode->mName.data, "LeftArm") == 0) {
 		XMMATRIX bodyRotate;
 		bodyRotate = XMMatrixIdentity();
 		bodyRotate *= XMMatrixRotationZ(canonUpAngle);
@@ -106,16 +137,8 @@ void CModelAnimation::DrawChild(aiNode * pNode, float canonAngle, float canonUpA
 	}
 
 	
-
-	// まずはローカル座標を求めて、スタックに押し込む
-	aiMatrix4x4 localMat = pNode->mTransformation;
-	aiTransposeMatrix4(&localMat);
-	XMMATRIX pushMatrix = XMMatrixSet(localMat.a1, localMat.a2, localMat.a3, localMat.a4,
-		localMat.b1, localMat.b2, localMat.b3, localMat.b4,
-		localMat.c1, localMat.c2, localMat.c3, localMat.c4,
-		localMat.d1, localMat.d2, localMat.d3, localMat.d4
-	);
-	_MatList.push_back(pushMatrix);
+	
+	
 
 	
 	
@@ -130,18 +153,28 @@ void CModelAnimation::DrawChild(aiNode * pNode, float canonAngle, float canonUpA
 	// まず、自分を描画する
 	for (int m = 0; m < pNode->mNumMeshes; m++) {
 		// マテリアル設定
-		CRenderer::SetMaterial(meshes[pNode->mMeshes[m]].pMaterial);
+		CRenderer::SetMaterial(m_SubsetArray[pNode->mMeshes[m]].Material.Material);
 		
 
 		// ポリゴン描画
-		CRenderer::DrawIndexed(meshes[pNode->mMeshes[m]].indexCount, meshes[pNode->mMeshes[m]].startIndex, 0);
+		CRenderer::DrawIndexed(m_SubsetArray[pNode->mMeshes[m]].IndexNum, m_SubsetArray[pNode->mMeshes[m]].StartIndex, meshes[pNode->mMeshes[m]].baseIndexNum);
 			   		 
 	}
 	// その後、子供がいれば子供を描画する
 	for (int i = 0; i < pNode->mNumChildren; i++) {
 		DrawChild(pNode->mChildren[i],canonAngle, canonUpAngle);
 	}
+	
 
+	if (strcmp(pNode->mName.data, "RightArm") == 0) {
+		_MatList.pop_back();
+
+	}
+
+	if (strcmp(pNode->mName.data, "LeftArm") == 0) {
+		_MatList.pop_back();
+
+	}
 	
 	if (strcmp(pNode->mName.data, "RightShoulder") == 0) {
 		_MatList.pop_back();
@@ -175,6 +208,12 @@ void CModelAnimation::DrawChild(aiNode * pNode, float canonAngle, float canonUpA
 		_MatList.pop_back();
 
 	}
+
+	if (strcmp(pNode->mName.data, "HumanBody") == 0) {
+
+		_MatList.pop_back();
+
+	}
 	
 	
 	// 終わったら、行列をポップする
@@ -194,11 +233,14 @@ void CModelAnimation::Load(const char * filename)
 	
 	// 頂点バッファ、インデックスバッファの単一化のためのカウンタ
 	unsigned int indexCnt = 0;
-
+	unsigned int vertexCount = 0;
 	meshes = new MESH[pScene->mNumMeshes];
 
 	std::vector<VERTEX_3D> _VertexList;
 	std::vector<unsigned short> _IndexList;
+
+
+	m_SubsetArray = new DX11_SUBSET[pScene->mNumMeshes];
 
 	for (int i = 0; i < pScene->mNumMeshes; i++) {
 		meshes[i].pMesh = pScene->mMeshes[i];
@@ -209,27 +251,29 @@ void CModelAnimation::Load(const char * filename)
 		aiColor4D bufColor;
 
 		aiGetMaterialColor(mat, AI_MATKEY_COLOR_DIFFUSE, &bufColor);
-		meshes[i].pMaterial.Diffuse.r = bufColor.r;
-		meshes[i].pMaterial.Diffuse.g = bufColor.g;
-		meshes[i].pMaterial.Diffuse.b = bufColor.b;
-		meshes[i].pMaterial.Diffuse.a = bufColor.a;
+		m_SubsetArray[i].Material.Material.Diffuse.r = bufColor.r;
+		m_SubsetArray[i].Material.Material.Diffuse.g = bufColor.g;
+		m_SubsetArray[i].Material.Material.Diffuse.b = bufColor.b;
+		m_SubsetArray[i].Material.Material.Diffuse.a = bufColor.a;
 		aiGetMaterialColor(mat, AI_MATKEY_COLOR_AMBIENT, &bufColor);
-		meshes[i].pMaterial.Ambient.r = bufColor.r;
-		meshes[i].pMaterial.Ambient.g = bufColor.g;
-		meshes[i].pMaterial.Ambient.b = bufColor.b;
-		meshes[i].pMaterial.Ambient.a = bufColor.a;
+		m_SubsetArray[i].Material.Material.Ambient.r = bufColor.r;
+		m_SubsetArray[i].Material.Material.Ambient.g = bufColor.g;
+		m_SubsetArray[i].Material.Material.Ambient.b = bufColor.b;
+		m_SubsetArray[i].Material.Material.Ambient.a = bufColor.a;
 		aiGetMaterialColor(mat, AI_MATKEY_COLOR_SPECULAR, &bufColor);
-		meshes[i].pMaterial.Specular.r = bufColor.r;
-		meshes[i].pMaterial.Specular.g = bufColor.g;
-		meshes[i].pMaterial.Specular.b = bufColor.b;
-		meshes[i].pMaterial.Specular.a = bufColor.a;
+		m_SubsetArray[i].Material.Material.Specular.r = bufColor.r;
+		m_SubsetArray[i].Material.Material.Specular.g = bufColor.g;
+		m_SubsetArray[i].Material.Material.Specular.b = bufColor.b;
+		m_SubsetArray[i].Material.Material.Specular.a = bufColor.a;
 		aiGetMaterialColor(mat, AI_MATKEY_COLOR_EMISSIVE, &bufColor);
-		meshes[i].pMaterial.Emission.r = bufColor.r;
-		meshes[i].pMaterial.Emission.g = bufColor.g;
-		meshes[i].pMaterial.Emission.b = bufColor.b;
-		meshes[i].pMaterial.Emission.a = bufColor.a;
+		m_SubsetArray[i].Material.Material.Emission.r = bufColor.r;
+		m_SubsetArray[i].Material.Material.Emission.g = bufColor.g;
+		m_SubsetArray[i].Material.Material.Emission.b = bufColor.b;
+		m_SubsetArray[i].Material.Material.Emission.a = bufColor.a;
 
 		
+		meshes[i].baseIndexNum = vertexCount;
+
 		// 本来ならここにmaterialのtexture関係を描く
 		//meshes[i].pTexture = new CTexture();
 		//pScene->mMeshes[pNode->mMeshes[0]]->mVertices;
@@ -248,6 +292,7 @@ void CModelAnimation::Load(const char * filename)
 			vertex.TexCoord.x = 0.0f;
 			vertex.TexCoord.y = 0.0f;
 			_VertexList.push_back(vertex);
+			vertexCount++;
 		}
 		
 		// インデックスバッファを作る
@@ -257,10 +302,11 @@ void CModelAnimation::Load(const char * filename)
 			meshes[i].pFaces[in].pFace = &meshes[i].pMesh->mFaces[in];
 			indexNum += meshes[i].pFaces[in].pFace->mNumIndices;
 		}
-		meshes[i].indexCount = indexNum;
+		
 
 		// インデックスの開始位置を求める
-		meshes[i].startIndex = indexCnt;
+		m_SubsetArray[i].StartIndex = indexCnt;
+		
 
 
 		unsigned short indexIns;
@@ -274,9 +320,11 @@ void CModelAnimation::Load(const char * filename)
 			}
 		}
 
-
+		m_SubsetArray[i].IndexNum = a;
 		
 	}
+
+	
 
 	// 頂点バッファの作成
 	VERTEX_3D* vertexBuf = new VERTEX_3D[_VertexList.size()];
@@ -326,11 +374,28 @@ void CModelAnimation::Load(const char * filename)
 	CRenderer::GetDevice()->CreateBuffer(&indexBufferDesc, &ibData, &indexBuffer);
 
 	delete indexBuf;
+
+	// サブセット設定
+	{
+
+		m_SubsetNum = pScene->mNumMeshes;
+
+		for (unsigned short i = 0; i < m_SubsetNum; i++)
+		{
+			//m_SubsetArray[i].Material.Texture = new CTexture();
+			/*
+			if (m_SubsetArray[i].Material.Texture[0] != '\0') {
+				m_SubsetArray[i].Material.Texture->Load(model.SubsetArray[i].Material.TextureName);
+			}
+			*/
+		}
+	}
 }
 
 void CModelAnimation::UnLoad()
 {
 	delete[] meshes;
+	delete[] m_SubsetArray;
 	aiReleaseImport(pScene);
 	if (vertexBuffer) {
 		vertexBuffer->Release();

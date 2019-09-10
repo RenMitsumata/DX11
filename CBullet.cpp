@@ -10,9 +10,8 @@
 #include "CBullet.h"
 
 
-CBullet::CBullet()
+CBullet::CBullet() : isKilled(false)
 {
-	m_Destroy = false;
 }
 
 CBullet::CBullet(CGameObject* owner,XMFLOAT3 pos, XMFLOAT3 velocity)
@@ -20,7 +19,6 @@ CBullet::CBullet(CGameObject* owner,XMFLOAT3 pos, XMFLOAT3 velocity)
 	this->owner = owner;
 	m_Velocity = velocity;
 	m_Position = pos;
-	m_Destroy = false;
 }
 
 void CBullet::Set(CGameObject* owner, XMFLOAT3 pos, XMFLOAT3 velocity)
@@ -28,7 +26,6 @@ void CBullet::Set(CGameObject* owner, XMFLOAT3 pos, XMFLOAT3 velocity)
 	this->owner = owner;
 	m_Velocity = velocity;
 	m_Position = pos;
-	m_Destroy = false;
 	m_Model = new CModel;
 	m_Model->Init("asset/bullet.obj", m_Position);
 	m_Model->SetScale(XMFLOAT3(0.4f, 0.4f, 0.4f));
@@ -48,7 +45,6 @@ void CBullet::Init(void)
 	m_Collision = CManager::GetScene()->AddCollision<CColSphere>();
 	m_Collision->Init(&m_Position);
 	m_Collision->SetRadius(0.8f);
-	m_Collision->Attach(this);
 	lifetime = 100;
 }
 
@@ -65,8 +61,8 @@ void CBullet::Update(void)
 	m_Position.z += m_Velocity.z;
 	m_Model->Update(m_Velocity);
 	lifetime--;
-	if (lifetime <= 0) {
-		SetDestroy();
+	if (lifetime <= 0 || m_Collision == nullptr) {
+		isKilled = true;
 	}
 	
 }

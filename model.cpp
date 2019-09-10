@@ -79,34 +79,35 @@ void CModel::Init(const char* filename) {
 	std::vector<VERTEX_3D> _VertexList;
 	std::vector<unsigned short> _IndexList;
 
+	m_SubsetArray = new DX11_SUBSET[g_pScene->mNumMeshes];
 	for (int i = 0; i < g_pScene->mNumMeshes; i++) {
 		meshes[i].pMesh = g_pScene->mMeshes[i];
 		
 		// マテリアルの設定
 		const aiMaterial* mat = g_pScene->mMaterials[meshes[i].pMesh->mMaterialIndex];
-
+		
 		aiColor4D bufColor;
 
 		aiGetMaterialColor(mat, AI_MATKEY_COLOR_DIFFUSE, &bufColor);
-		meshes[i].pMaterial.Diffuse.r = bufColor.r;
-		meshes[i].pMaterial.Diffuse.g = bufColor.g;
-		meshes[i].pMaterial.Diffuse.b = bufColor.b;
-		meshes[i].pMaterial.Diffuse.a = bufColor.a;
+		m_SubsetArray[i].Material.Material.Diffuse.r = bufColor.r;
+		m_SubsetArray[i].Material.Material.Diffuse.g = bufColor.g;
+		m_SubsetArray[i].Material.Material.Diffuse.b = bufColor.b;
+		m_SubsetArray[i].Material.Material.Diffuse.a = bufColor.a;
 		aiGetMaterialColor(mat, AI_MATKEY_COLOR_AMBIENT, &bufColor);
-		meshes[i].pMaterial.Ambient.r = bufColor.r;
-		meshes[i].pMaterial.Ambient.g = bufColor.g;
-		meshes[i].pMaterial.Ambient.b = bufColor.b;
-		meshes[i].pMaterial.Ambient.a = bufColor.a;
+		m_SubsetArray[i].Material.Material.Ambient.r = bufColor.r;
+		m_SubsetArray[i].Material.Material.Ambient.g = bufColor.g;
+		m_SubsetArray[i].Material.Material.Ambient.b = bufColor.b;
+		m_SubsetArray[i].Material.Material.Ambient.a = bufColor.a;
 		aiGetMaterialColor(mat, AI_MATKEY_COLOR_SPECULAR, &bufColor);
-		meshes[i].pMaterial.Specular.r = bufColor.r;
-		meshes[i].pMaterial.Specular.g = bufColor.g;
-		meshes[i].pMaterial.Specular.b = bufColor.b;
-		meshes[i].pMaterial.Specular.a = bufColor.a;
+		m_SubsetArray[i].Material.Material.Specular.r = bufColor.r;
+		m_SubsetArray[i].Material.Material.Specular.g = bufColor.g;
+		m_SubsetArray[i].Material.Material.Specular.b = bufColor.b;
+		m_SubsetArray[i].Material.Material.Specular.a = bufColor.a;
 		aiGetMaterialColor(mat, AI_MATKEY_COLOR_EMISSIVE, &bufColor);
-		meshes[i].pMaterial.Emission.r = bufColor.r;
-		meshes[i].pMaterial.Emission.g = bufColor.g;
-		meshes[i].pMaterial.Emission.b = bufColor.b;
-		meshes[i].pMaterial.Emission.a = bufColor.a;
+		m_SubsetArray[i].Material.Material.Emission.r = bufColor.r;
+		m_SubsetArray[i].Material.Material.Emission.g = bufColor.g;
+		m_SubsetArray[i].Material.Material.Emission.b = bufColor.b;
+		m_SubsetArray[i].Material.Material.Emission.a = bufColor.a;
 		
 
 
@@ -136,23 +137,9 @@ void CModel::Init(const char* filename) {
 			_VertexList.push_back(vertex);
 		}
 
-
-		
-
-		
-
-		// インデックスバッファを作る
-		meshes[i].pFaces = new FACE[meshes[i].pMesh->mNumFaces];
-		unsigned short indexNum = 0;
-		for (int in = 0; in < meshes[i].pMesh->mNumFaces; in++) {
-			meshes[i].pFaces[in].pFace = &meshes[i].pMesh->mFaces[in];
-			indexNum += meshes[i].pFaces[in].pFace->mNumIndices;
-		}
-		meshes[i].indexCount = indexNum;
-
 		// インデックスの開始位置を求める
-		meshes[i].startIndex = indexCnt;
-
+		meshes[i].pFaces = new FACE[meshes[i].pMesh->mNumFaces];
+		m_SubsetArray[i].StartIndex = indexCnt;
 
 		unsigned short indexIns;
 		int a = 0;
@@ -165,7 +152,9 @@ void CModel::Init(const char* filename) {
 			}
 		}
 
-	
+		m_SubsetArray[i].IndexNum = a;
+
+		
 		
 	}
 
@@ -176,15 +165,6 @@ void CModel::Init(const char* filename) {
 		vertexBuf[num] = oneVertex;
 		num++;
 	}
-
-	// インデックスバッファの作製
-	unsigned short* indexBuf = new unsigned short[_IndexList.size()];
-	num = 0;
-	for (unsigned short oneIndex : _IndexList) {
-		indexBuf[num] = oneIndex;
-		num++;
-	}
-
 
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	vertexBufferDesc.ByteWidth = sizeof(VERTEX_3D) * _VertexList.size();
@@ -201,6 +181,15 @@ void CModel::Init(const char* filename) {
 
 	delete vertexBuf;
 
+	// インデックスバッファの作成
+	unsigned short* indexBuf = new unsigned short[_IndexList.size()];
+	num = 0;
+	for (unsigned short oneIndex : _IndexList) {
+		indexBuf[num] = oneIndex;
+		num++;
+	}
+
+
 	D3D11_BUFFER_DESC indexBuffer;
 	indexBuffer.ByteWidth = sizeof(unsigned short) * _IndexList.size();
 	indexBuffer.Usage = D3D11_USAGE_DEFAULT;
@@ -216,27 +205,23 @@ void CModel::Init(const char* filename) {
 
 	delete indexBuf;
 	
-	
-	//int material = g_pScene->mNumMaterials;
-	//g_Texture = new unsigned int[material];
-	/*
-	for (int i = 0; i < material; i++) {
-		aiString path;
+	// サブセット設定
+	{
+		
+		m_SubsetNum = g_pScene->mNumMeshes;
 
-
-		g_pScene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, 0, &path);
-		// マテリアルに画像がある
-		std::string texPath = path.data;
-		size_t pos = texPath.find_last_of("\\/");
-		std::string headerPath = texPath.substr(0, pos + 1);
-		headerPath += path.data;
-		texPath.c_str();	// stringの先頭アドレスを取得できる
-		texture[i] = LoadTexture(headerPath.c_str(), 2);
+		for (unsigned short i = 0; i < m_SubsetNum; i++)
+		{
+			m_SubsetArray[i].Material.Texture = new CTexture();
+			/*
+			if (m_SubsetArray[i].Material.Texture[0] != '\0') {
+				m_SubsetArray[i].Material.Texture->Load(model.SubsetArray[i].Material.TextureName);
+			}
+			*/
+		}
 	}
-	*/
-
-
-	//Load(filename);
+	
+	
 	
 }
 
@@ -426,13 +411,13 @@ void CModel::DrawChild(aiNode* pCurrentNode, float canonAngle, float canonUpAngl
 	for (int m = 0; m < pCurrentNode->mNumMeshes; m++) {
 		// マテリアル設定
 		
-		CRenderer::SetMaterial(meshes[pCurrentNode->mMeshes[m]].pMaterial);		
+		CRenderer::SetMaterial(m_SubsetArray[pCurrentNode->mMeshes[m]].Material.Material);
 		
 		// テクスチャ設定
 		//CRenderer::SetTexture(meshes[pCurrentNode->mMeshes[m]].pTexture);
 
 		// ポリゴン描画
-		CRenderer::DrawIndexed(meshes[pCurrentNode->mMeshes[m]].indexCount, meshes[pCurrentNode->mMeshes[m]].startIndex,0);
+		CRenderer::DrawIndexed(m_SubsetArray[pCurrentNode->mMeshes[m]].IndexNum, m_SubsetArray[pCurrentNode->mMeshes[m]].StartIndex,0);
 				
 
 	}
