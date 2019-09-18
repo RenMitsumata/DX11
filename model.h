@@ -29,6 +29,8 @@ struct MODEL
 	unsigned short	SubsetNum;
 };
 
+
+
 //@‘O•ûéŒ¾
 struct aiNode;
 struct aiFace;
@@ -48,7 +50,6 @@ struct MESH {
 	//unsigned short	startIndex;
 	FACE*			pFaces;
 	unsigned short baseIndexNum;
-	//CTexture*		pTexture;
 };
 
 

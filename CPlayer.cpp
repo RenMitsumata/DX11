@@ -44,8 +44,9 @@ void CPlayer::Init(void)
 	up = XMLoadFloat3(&startUp);
 	//m_Model->Init();
 	m_Model->Load("asset/coaster.fbx");
-	m_ModelHuman->Load("asset/human.fbx");
-	m_Shadow->Init();
+	//m_ModelHuman->Load("asset/Human.fbx");
+	m_ModelHuman->Load("asset/yakiu.fbx");
+	m_Shadow->Init(); 
 	skydome = CManager::GetScene()->AddGameObject<SkyDome>(1);
 	skydome->Init(50.0f);
 	//playerUI = CManager::GetScene()->AddGameObject<CPolygon>(4);
@@ -69,6 +70,7 @@ void CPlayer::Uninit(void)
 void CPlayer::Update(void)
 {
 	//m_Model->Update();
+	m_ModelHuman->Update(distance);
 	XMFLOAT3 frontPos;
 	XMFLOAT3 upPos;
 	XMStoreFloat3(&frontPos, front);
@@ -197,11 +199,15 @@ void CPlayer::Draw(void)
 	XMMATRIX mat = XMMatrixIdentity();
 	mat *= XMMatrixRotationRollPitchYaw(YPR.x, YPR.y, YPR.z);
 	mat *= XMMatrixScaling(0.01f, 0.01f, 0.01f);
-	
-	
 	mat *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
+
+	XMMATRIX humMat = XMMatrixIdentity();
+	//humMat *= XMMatrixRotationRollPitchYaw(YPR.x, YPR.y, YPR.z);
+	humMat *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
+
+
 	//CRenderer::SetWorldMatrix(&mat);
-	m_ModelHuman->Draw(mat, sinf(myAngle), cosf(myAngle));
+	m_ModelHuman->Draw(humMat, 0.0f, 0.0f);
 	m_Model->Draw(mat, m_Rotation.x,m_Rotation.y);
 	
 	

@@ -145,6 +145,10 @@
     <LibraryPath>C:\Users\ren_m\Documents\HAL\GM31\DX11\Assimp\lib\x86;$(LibraryPath)</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>C:\Users\ren_m\Documents\HAL\GM31\DX11\Assimp\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\ren_m\Documents\HAL\GM31\DX11\Assimp\lib\x86;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
@@ -168,7 +172,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
