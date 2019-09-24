@@ -15,7 +15,7 @@ class CPlayer :	public CGameObject
 {
 private:
 	CModelAnimation* m_Model = NULL;
-	CModelAnimation* m_ModelHuman = NULL;
+	CModelAnimation* m_ModelHuman[3];
 	CShadow* m_Shadow = NULL;
 	CCamera* m_Camera = NULL;
 	Cource* pCource = NULL;

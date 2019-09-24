@@ -21,6 +21,8 @@
 #include "CPlayer.h"
 
 static float myAngle;
+int CurrentPose = 0;
+
 
 CPlayer::CPlayer()
 {
@@ -34,7 +36,7 @@ CPlayer::~CPlayer()
 void CPlayer::Init(void)
 {
 	m_Model = new CModelAnimation();
-	m_ModelHuman = new CModelAnimation();
+	
 	m_Shadow = new CShadow(5.0f);
 	m_Camera = CManager::GetScene()->AddGameObject<CCamera>(0);
 	m_Position = { 0.0f,0.5f,0.0f };
@@ -45,7 +47,12 @@ void CPlayer::Init(void)
 	//m_Model->Init();
 	m_Model->Load("asset/coaster.fbx");
 	//m_ModelHuman->Load("asset/Human.fbx");
-	m_ModelHuman->Load("asset/yakiu.fbx");
+	for (int i = 0; i < 3; i++) {
+		m_ModelHuman[i] = new CModelAnimation();
+	}
+	m_ModelHuman[0]->Load("asset/yakiu.fbx");
+	m_ModelHuman[1]->Load("asset/Jumping.fbx");
+	m_ModelHuman[2]->Load("asset/Walking.fbx");
 	m_Shadow->Init(); 
 	skydome = CManager::GetScene()->AddGameObject<SkyDome>(1);
 	skydome->Init(50.0f);
@@ -61,16 +68,24 @@ void CPlayer::Uninit(void)
 	delete m_SE_Shoot;
 	m_Shadow->Uninit();	
 	delete m_Shadow;
-	m_ModelHuman->UnLoad();
+	for (int i = 0; i < 3; i++) {
+		m_ModelHuman[i]->UnLoad();
+		delete m_ModelHuman[i];
+	}	
 	m_Model->UnLoad();
-	delete m_ModelHuman;
+	//delete[] m_ModelHuman;
 	delete m_Model;
 }
 
 void CPlayer::Update(void)
 {
 	//m_Model->Update();
-	m_ModelHuman->Update(distance);
+	/*
+	for (int i = 0; i < 3; i++) {
+		m_ModelHuman[i]->Update(distance);
+	}
+	*/
+	m_ModelHuman[CurrentPose]->Update(distance);
 	XMFLOAT3 frontPos;
 	XMFLOAT3 upPos;
 	XMStoreFloat3(&frontPos, front);
@@ -113,6 +128,18 @@ void CPlayer::Update(void)
 		m_Rotation.x += 0.05f;
 	}
 	
+	if (CInput::GetKeyPress('P')) {
+		CurrentPose = 0;
+	}
+
+	if (CInput::GetKeyPress('L')) {
+		CurrentPose = 1;
+	}
+
+	if (CInput::GetKeyPress('O')) {
+		CurrentPose = 2;
+	}
+
 	
 	distance += 0.25f;
 	pCource = CManager::GetScene()->GetGameObject<Cource>(1);
@@ -203,11 +230,14 @@ void CPlayer::Draw(void)
 
 	XMMATRIX humMat = XMMatrixIdentity();
 	//humMat *= XMMatrixRotationRollPitchYaw(YPR.x, YPR.y, YPR.z);
+	//humMat *= XMMatrixScaling(0.01f, 0.01f, 0.01f);
 	humMat *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
 
 
 	//CRenderer::SetWorldMatrix(&mat);
-	m_ModelHuman->Draw(humMat, 0.0f, 0.0f);
+
+	m_ModelHuman[CurrentPose]->Draw(humMat, 0.0f, 0.0f);
+	
 	m_Model->Draw(mat, m_Rotation.x,m_Rotation.y);
 	
 	

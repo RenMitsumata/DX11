@@ -19,6 +19,7 @@ void CAudioClip::Init(void)
 	// マスタリングボイス生成
 	m_Xaudio->CreateMasteringVoice( &m_MasteringVoice );
 
+
 }
 
 

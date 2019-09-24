@@ -103,13 +103,13 @@ void CModelAnimation::DrawChild(aiNode * pNode, float canonAngle, float canonUpA
 
 
 
-		/*
+		
 
-		aiQuaternion aiQuat = m_NodeRotation[pNode->mName.C_Str()];
-		XMVECTOR quat = XMLoadFloat4(&XMFLOAT4(aiQuat.x, aiQuat.y, aiQuat.z, aiQuat.w));
-		aiVector3D aiPos = m_NodePosition[pNode->mName.C_Str()];
+		//aiQuaternion aiQuat = m_NodeRotation[pNode->mName.C_Str()];
+		//XMVECTOR quat = XMLoadFloat4(&XMFLOAT4(aiQuat.x, aiQuat.y, aiQuat.z, aiQuat.w));
+		//aiVector3D aiPos = m_NodePosition[pNode->mName.C_Str()];
 
-		*/
+		
 
 		if (strcmp(pNode->mName.data, "Canon") == 0) {
 
@@ -125,6 +125,7 @@ void CModelAnimation::DrawChild(aiNode * pNode, float canonAngle, float canonUpA
 
 
 		// まずはローカル座標を求めて、スタックに押し込む
+		
 		aiMatrix4x4 localMat = pNode->mTransformation;
 		aiTransposeMatrix4(&localMat);
 		XMMATRIX pushMatrix = XMMatrixSet(localMat.a1, localMat.a2, localMat.a3, localMat.a4,
@@ -134,7 +135,7 @@ void CModelAnimation::DrawChild(aiNode * pNode, float canonAngle, float canonUpA
 		);
 
 		local = local * pushMatrix * matrix;
-
+		
 
 		//XMMATRIX world = XMMatrixRotationQuaternion(quat);
 
@@ -188,11 +189,9 @@ void CModelAnimation::DrawChild(aiNode * pNode, float canonAngle, float canonUpA
 		world = XMMatrixRotationQuaternion(auat);
 
 		aiVector3D aiVector = m_NodePosition[pNode->mName.C_Str()];
-		//XMVECTOR  pos = XMLoadFloat3(&XMFLOAT3(aiVector.x, aiVector.y, aiVector.z));
-		//world *= XMMatrixTranslationFromVector(pos);
-		XMFLOAT3 pos = XMFLOAT3(aiVector.x, aiVector.y, aiVector.z);
+		XMVECTOR  pos = XMLoadFloat3(&XMFLOAT3(aiVector.x, aiVector.y, aiVector.z));
+		world *= XMMatrixTranslationFromVector(pos);
 		
-		world *= XMMatrixTranslation(pos.x, pos.y, pos.z);
 		
 		
 
@@ -493,6 +492,8 @@ void CModelAnimation::UnLoad()
 
 void CModelAnimation::Update(int Frame){
 	
+
+
 	// 0番目のアニメーションを取得
 	if (pScene->HasAnimations()) {
 		/*　複数のアニメーションを取得する場合
@@ -501,6 +502,8 @@ void CModelAnimation::Update(int Frame){
 			pAnimation = g_pScene->mAnimations[i];
 		}
 		*/
+
+
 
 		
 		// 0番のアニメーションを取得
@@ -641,7 +644,7 @@ void CModelAnimation::Update(int Frame){
 		*/
 
 		// 再帰的にボーンデータを更新する
-		//UpdateBoneMatrix(pScene->mRootNode, &aiMatrix4x4());
+		UpdateBoneMatrix(pScene->mRootNode, &aiMatrix4x4());
 
 	}
 }
@@ -654,3 +657,17 @@ CModelAnimation::CModelAnimation()
 CModelAnimation::~CModelAnimation()
 {
 }
+
+
+/*
+Update(int Animation1,int Animation2,float blend,int Frame){
+aiAnimation* animation1 = m_Scene[Animation1].mAnimation[0]
+aiAnimation* animation2 = m_Scene[Animation2].mAnimation[0]
+for(){
+	aiNodeAnim* nodeAnim1 = animation1->mChannels[c];
+	aiNodeAnim* nodeAnim2 = animation2->mChannels[c];
+	mNodeRotation[]=球面線形補間
+	mNodePosition[]=線形補間
+}
+}
+*/
