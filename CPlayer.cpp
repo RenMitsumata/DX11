@@ -51,8 +51,8 @@ void CPlayer::Init(void)
 		m_ModelHuman[i] = new CModelAnimation();
 	}
 	m_ModelHuman[0]->Load("asset/yakiu.fbx");
-	m_ModelHuman[1]->Load("asset/Jumping.fbx");
-	m_ModelHuman[2]->Load("asset/Walking.fbx");
+	m_ModelHuman[1]->Load("asset/jump.fbx");
+	m_ModelHuman[2]->Load("asset/walk.fbx");
 	m_Shadow->Init(); 
 	skydome = CManager::GetScene()->AddGameObject<SkyDome>(1);
 	skydome->Init(50.0f);
@@ -80,12 +80,12 @@ void CPlayer::Uninit(void)
 void CPlayer::Update(void)
 {
 	//m_Model->Update();
-	/*
+	
 	for (int i = 0; i < 3; i++) {
 		m_ModelHuman[i]->Update(distance);
 	}
-	*/
-	m_ModelHuman[CurrentPose]->Update(distance);
+	
+	//m_ModelHuman[CurrentPose]->Update(distance);
 	XMFLOAT3 frontPos;
 	XMFLOAT3 upPos;
 	XMStoreFloat3(&frontPos, front);
@@ -237,6 +237,7 @@ void CPlayer::Draw(void)
 	//CRenderer::SetWorldMatrix(&mat);
 
 	m_ModelHuman[CurrentPose]->Draw(humMat, 0.0f, 0.0f);
+	
 	
 	m_Model->Draw(mat, m_Rotation.x,m_Rotation.y);
 	
