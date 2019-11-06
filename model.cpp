@@ -255,6 +255,27 @@ void CModel::Update(XMFLOAT3 deltaPos)
 	m_Position.z += deltaPos.z;
 }
 
+void CModel::Draw(bool isWorldSet) {
+	// 頂点バッファ設定
+	CRenderer::SetVertexBuffers(m_VertexBuffer);
+
+	// インデックスバッファ設定
+	CRenderer::SetIndexBuffer(m_IndexBuffer);
+
+	for (unsigned short i = 0; i < m_SubsetNum; i++)
+	{
+		// マテリアル設定
+		CRenderer::SetMaterial(m_SubsetArray[i].Material.Material);
+
+		// テクスチャ設定
+		CRenderer::SetTexture(m_SubsetArray[i].Material.Texture);
+
+		// ポリゴン描画
+		CRenderer::DrawIndexed(m_SubsetArray[i].IndexNum, m_SubsetArray[i].StartIndex, 0);
+	}
+
+}
+
 void CModel::Draw()
 {
 

@@ -77,6 +77,7 @@ public:
 	void Uninit();
 	void Update();
 	void Update(XMFLOAT3 deltaPos);
+	void Draw(bool isWorldSet);
 	void Draw();
 	void Draw(unsigned int mgtNum, XMFLOAT3 rootPos);
 	void Draw(unsigned int mgtNum, XMFLOAT3 rootPos, XMFLOAT3 yawpitchroll);

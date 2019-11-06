@@ -22,8 +22,11 @@ void CGame::Init(void)
 	AddGameObject<Cource>(1);
 	//AddGameObject<CField>(1);
 	
-	
+	AddGameObject<CBall>(2);
+
 	AddGameObject<CPlayer>(2);
+
+	
 	for (int i = 0; i < 200; i++) {
 		AddGameObject<CEnemy>(2);
 	}

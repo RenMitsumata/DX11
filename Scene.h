@@ -17,6 +17,7 @@
 #include "SkyDome.h"
 #include "CBullet.h"
 #include "Cource.h"
+#include "CBall.h"
 
 class CScene
 {

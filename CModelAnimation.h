@@ -19,6 +19,8 @@ private:
 	
 	std::map<std::string, aiQuaternion> m_NodeRotation;
 	std::map<std::string, aiVector3D> m_NodePosition;
+	std::map<std::string, aiQuaternion> m_middleNodeRotation;
+	std::map<std::string, aiVector3D> m_middleNodePosition;
 
 	ID3D11Buffer* vertexBuffer;
 	ID3D11Buffer* indexBuffer;
@@ -40,6 +42,8 @@ public:
 	void Load(const char* filename);
 	void UnLoad();
 	void Update(int Frame);
+	void Update(aiScene* pScene1, aiScene* pScene2, float blend, int frame);
+	void ResetCount() { animCnt = 0; }
 	//void Update(int Animation,int Frame);
 	CModelAnimation();
 	virtual ~CModelAnimation();

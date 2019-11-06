@@ -43,7 +43,7 @@ void CAudioClip::Uninit(void)
 
 void CAudioClip::Load(const char *FileName)
 {
-
+	
 	// サウンドデータ読込
 	WAVEFORMATEX wfx = { 0 };
 
@@ -103,7 +103,7 @@ void CAudioClip::Load(const char *FileName)
 	{
 		m_Xaudio->CreateSourceVoice(&m_SourceVoice[j], &wfx);
 	}
-
+	
 }
 
 

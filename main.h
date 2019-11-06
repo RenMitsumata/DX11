@@ -7,6 +7,8 @@
 
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include <assimp/vector3.h>
+
 using namespace DirectX;
 
 #pragma comment (lib, "d3d11.lib")
@@ -25,3 +27,5 @@ XMFLOAT3 operator - (XMFLOAT3 a, XMFLOAT3 b);
 XMFLOAT3 operator * (XMFLOAT3 a, float b);
 XMFLOAT3 operator * (float a, XMFLOAT3 b);
 XMFLOAT3 operator / (XMFLOAT3 a, float b);
+
+

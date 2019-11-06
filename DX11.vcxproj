@@ -22,6 +22,7 @@
     <ClCompile Include="audio_clip.cpp" />
     <ClCompile Include="Billboard.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="CBall.cpp" />
     <ClCompile Include="CBullet.cpp" />
     <ClCompile Include="CColBox.cpp" />
     <ClCompile Include="CCollision.cpp" />
@@ -50,6 +51,7 @@
     <ClInclude Include="audio_clip.h" />
     <ClInclude Include="Billboard.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="CBall.h" />
     <ClInclude Include="CBullet.h" />
     <ClInclude Include="CColBox.h" />
     <ClInclude Include="CCollision.h" />

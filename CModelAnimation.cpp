@@ -649,6 +649,34 @@ void CModelAnimation::Update(int Frame){
 	}
 }
 
+void CModelAnimation::Update(aiScene * pScene1, aiScene * pScene2, float blend, int frame)
+{
+	if (pScene->HasAnimations()) {
+
+		aiAnimation* animation1 = pScene1->mAnimations[0];
+		aiAnimation* animation2 = pScene2->mAnimations[0];
+		for (auto c = 0; c < animation1->mNumChannels; c++) {
+			aiNodeAnim* nodeAnim1 = animation1->mChannels[c];
+			aiNodeAnim* nodeAnim2 = animation2->mChannels[c];
+			int f1 = frame % nodeAnim1->mNumRotationKeys;
+
+			int s1 = frame % nodeAnim1->mNumPositionKeys;
+			int f2 = frame % nodeAnim2->mNumRotationKeys;
+
+			int s2 = frame % nodeAnim2->mNumPositionKeys;
+			aiQuaternion quat;
+			aiQuaternion::Interpolate(quat, nodeAnim1->mRotationKeys[f1].mValue, nodeAnim2->mRotationKeys[f2].mValue, frame);
+			m_middleNodeRotation[nodeAnim1->mNodeName.C_Str()] = quat;
+
+			//m_middleNodePosition[nodeAnim1->mNodeName.C_Str()] = nodeAnim1->mPositionKeys[s1].mValue * (1 - frame) + nodeAnim1->mPositionKeys[s1].mValue * frame;
+		}
+	
+
+	}
+
+
+}
+
 CModelAnimation::CModelAnimation()
 {
 }
@@ -661,13 +689,6 @@ CModelAnimation::~CModelAnimation()
 
 /*
 Update(int Animation1,int Animation2,float blend,int Frame){
-aiAnimation* animation1 = m_Scene[Animation1].mAnimation[0]
-aiAnimation* animation2 = m_Scene[Animation2].mAnimation[0]
-for(){
-	aiNodeAnim* nodeAnim1 = animation1->mChannels[c];
-	aiNodeAnim* nodeAnim2 = animation2->mChannels[c];
-	mNodeRotation[]=‹…–ÊüŒ`•âŠÔ
-	mNodePosition[]=üŒ`•âŠÔ
-}
+
 }
 */
