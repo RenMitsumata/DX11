@@ -46,6 +46,7 @@ void CCamera::Uninit()
 void CCamera::Update()
 {
 	
+	/*
 	if (CInput::GetKeyPress(VK_UP)) {
 		 XMVECTOR delta = XMVector3Normalize(at - eye) * 0.5f;
 		 eye += delta;
@@ -76,6 +77,7 @@ void CCamera::Update()
 		eye -= delta;
 		at -= delta;
 	}
+	*/
 
 	if (CInput::GetKeyPress(VK_NUMPAD8)) {
 		// カメラ→注視点のベクトルを求める
@@ -191,3 +193,15 @@ void CCamera::Draw()
 
 }
 
+bool CCamera::GetVisiblity(XMFLOAT3 position) {
+	XMVECTOR worldPos, viewPos, projPos;
+	XMFLOAT3 projPosF;
+	worldPos = XMLoadFloat3(&position);
+	viewPos = XMVector3TransformCoord(worldPos, viewMatrix);
+	projPos = XMVector3TransformCoord(viewPos, projMatrix);
+	XMStoreFloat3(&projPosF, projPos);
+	if (-1.0f < projPosF.x&&projPosF.x < 1.0f&&-1.0f < projPosF.y&&projPosF.y < 1.0f && 0.0f < projPosF.z && projPosF.z < 1.0f) {
+		return true;
+	}
+	return false;
+}

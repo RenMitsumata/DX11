@@ -6,6 +6,9 @@
 #include "GameObject.h"
 #include "model.h"
 #include "input.h"
+#include "manager.h"
+#include "scene.h"
+#include "camera.h"
 #include <string>
 #include <vector>
 
@@ -31,7 +34,7 @@ CBall::~CBall()
 
 void CBall::Init() {
 	m_Quaternion = XMQuaternionIdentity();
-	m_Position = XMFLOAT3(0.0f, 100.0f, 0.0f);
+	m_Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_Model = new CModel;
 	m_Model->Load("asset/ball.fbx");
 }
@@ -55,7 +58,7 @@ void CBall::Update() {
 		m_Quaternion = XMQuaternionNormalize(m_Quaternion);
 
 		// ˆÚ“®
-		m_Rotation.z += 50.0f;
+		m_Rotation.z += 1.0f;
 
 	}
 	if (CInput::GetKeyPress(VK_DOWN)) {
@@ -76,7 +79,7 @@ void CBall::Update() {
 		m_Quaternion = XMQuaternionNormalize(m_Quaternion);
 
 		// ˆÚ“®
-		m_Rotation.z -= 50.0f;
+		m_Rotation.z -= 1.0f;
 
 	}
 	if (CInput::GetKeyPress(VK_LEFT)) {
@@ -97,7 +100,7 @@ void CBall::Update() {
 		m_Quaternion = XMQuaternionNormalize(m_Quaternion);
 
 		// ˆÚ“®
-		m_Rotation.x -= 50.0f;
+		m_Rotation.x -= 1.0f;
 
 	}
 	if (CInput::GetKeyPress(VK_RIGHT)) {
@@ -118,15 +121,21 @@ void CBall::Update() {
 		m_Quaternion = XMQuaternionNormalize(m_Quaternion);
 
 		// ˆÚ“®
-		m_Rotation.x += 50.0f;
+		m_Rotation.x += 1.0f;
 	}
 }
 
 void CBall::Draw() {
+	CCamera* camera;
+	camera = CManager::GetScene()->GetGameObject<CCamera>(0);
+	if (camera->GetVisiblity(m_Position) == false) {
+		return;
+	}
+
 
 	XMMATRIX world;
 	world = XMMatrixIdentity();
-	world *= XMMatrixScaling(0.01f,0.01f,0.01f);
+	world *= XMMatrixScaling(10.0f,10.0f,10.0f);
 	world *= XMMatrixRotationQuaternion(m_Quaternion);
 	world *= XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
 	CRenderer::SetWorldMatrix(&world);

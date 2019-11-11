@@ -15,6 +15,8 @@ private:
 	XMVECTOR at;
 	XMVECTOR up;
 
+	XMMATRIX viewMatrix;
+	XMMATRIX projMatrix;
 
 	float    fov;
 	float    aspect;
@@ -28,5 +30,7 @@ public:
 	void Update(XMFLOAT3 newPos);
 	void Update(XMFLOAT3 newPos,XMVECTOR frontVec,XMVECTOR upVec);
 	void Draw();
+
+	bool GetVisiblity(XMFLOAT3 position);
 
 };

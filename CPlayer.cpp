@@ -39,7 +39,7 @@ void CPlayer::Init(void)
 	
 	m_Shadow = new CShadow(5.0f);
 	m_Camera = CManager::GetScene()->AddGameObject<CCamera>(0);
-	m_Position = { 0.0f,0.5f,0.0f };
+	m_Position = { 0.0f,0.5f,0.5f };
 	const XMFLOAT3 startFront = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	front = XMLoadFloat3(&startFront);
 	const XMFLOAT3 startUp = XMFLOAT3(0.0f, 1.0f, 0.0f);
@@ -85,6 +85,7 @@ void CPlayer::Update(void)
 		m_ModelHuman[i]->Update(distance);
 	}
 	*/
+	/*
 	m_ModelHuman[CurrentPose]->Update(distance);
 	XMFLOAT3 frontPos;
 	XMFLOAT3 upPos;
@@ -196,10 +197,13 @@ void CPlayer::Update(void)
 	//m_Position.y += 0.5f;
 	
 	myAngle += 0.05f;
+	*/
+	distance += 0.25f;
 }
 
 void CPlayer::Draw(void)
 {
+	
 	m_Shadow->Draw(m_Position);
 	
 	
